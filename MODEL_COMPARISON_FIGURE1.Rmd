@@ -1,0 +1,411 @@
+---
+title: "MODEL_COMPARISON_FIGURE1"
+author: "Matthew J Shannon"
+date: "17/10/2022"
+output: html_document
+---
+
+# Load in all dependencies
+
+```{r, include = FALSE}
+devtools::install_github ('chris-mcginnis-ucsf/DoubletFinder')
+devtools::install_github ('satijalab/seurat-wrappers')
+remotes::install_github  ("mojaveazure/seurat-disk")
+devtools::install_github ("velocyto-team/velocyto.R")
+BiocManager::install     ("pcaMethods")
+BiocManager::install     ('MAST')
+BiocManager::install     ('org.Hs.eg.db')
+BiocManager::install     (version = "3.12")
+BiocManager::install     ('Seurat')
+BiocManager::install     ('readxl')
+BiocManager::install     ('modes')
+BiocManager::install     ('pheatmap')
+BiocManager::install     ('limma')
+BiocManager::install     ('clustree')
+BiocManager::install     ('clusterProfiler')
+BiocManager::install     ('EnhancedVolcano')
+install.packages         ('fields')
+install.packages         ('plotly')
+install.packages         ("VennDiagram")
+library                  (Seurat)
+library                  (readr)
+library                  (tidyverse)
+library                  (Matrix)
+library                  (dplyr)
+library                  (ggplot2)
+library                  (cowplot)
+library                  (tibble)
+library                  (readxl)
+library                  (sctransform)
+library                  (fields)
+library                  (KernSmooth)
+library                  (ROCR)
+library                  (parallel)
+library                  (reshape2)
+library                  (pheatmap)
+library                  (DoubletFinder)
+library                  (limma)
+library                  (SeuratWrappers)
+library                  (SeuratDisk)
+library                  (plotly)
+library                  (clustree)
+library                  (velocyto.R)
+library                  (MAST)
+library                  (EnhancedVolcano)
+library                  (clusterProfiler)
+library                  (AnnotationDbi)
+library                  (org.Hs.eg.db)
+library                  (VennDiagram)
+library                  (RColorBrewer)
+library                  (xlsx)
+```
+
+# Load the integrated and model-specific trophoblast Seurat objects
+
+```{r}
+load         (file = "~/Desktop/FINAL_Trophoblast_Data.Rdata")
+DefaultAssay (Trophoblasts) <- "integrated"
+
+# MPI (in vivo) trophoblast object
+load         (file = "~/Desktop/MPI.Rdata")
+DefaultAssay (MPI) <- "integrated"
+
+# PD-TOrg (in vitro) trophoblast object
+load         (file = "~/Desktop/PD_TOrg.Rdata")
+DefaultAssay (PD.TOrg) <- "integrated"
+
+# hTSC-TOrg (in vitro) trophoblast object
+load         (file = "~/Desktop/hTSC_TOrg.Rdata")
+DefaultAssay (hTSC.TOrg) <- "integrated"
+```
+
+# Figure 1
+
+## Integrated trophoblast data analyses
+
+```{r, Table S5A Integrated data}
+table (Idents (Trophoblasts))
+```
+
+```{r, Figure 1D Integrated UMAP}
+UMAPPlot (Trophoblasts,
+          label   = TRUE,
+          pt.size = 3,
+          cols    = c('CTB 1'  = '#E31A1C',
+                      'CTB 2'  = '#999999',
+                      'CTB 3'  = '#225EA8',
+                      'CTB 4'  = '#984EA3',
+                      'TSC'    = '#A65628',
+                      'cCTB 1' = '#66C2A4',
+                      'cCTB 2' = '#FFD92F',
+                      'cCTB 3' = '#FF7F00',
+                      'EVT'    = '#006D2C',
+                      'SCTp 1' = '#F781BF',
+                      'SCTp 2' = '#800026')) + NoLegend ()
+```
+
+## Integrated trophoblast (un-biased) gene markers
+
+```{r, Table S3A analysis}
+DefaultAssay (Trophoblasts) <- "RNA"
+
+Trophoblasts.markers <- FindAllMarkers (object   = Trophoblasts,
+                                        only.pos = TRUE,
+                                        min.pct  = 0.25, 
+                                        test.use = "MAST")
+
+DefaultAssay (Trophoblasts) <- "integrated"
+
+Trophoblasts.markers %>% group_by (cluster) %>% top_n (20, avg_log2FC)
+```
+
+```{r, Table S3A export}
+write.xlsx (Trophoblasts.markers, file = "Integrated_genemarkers.xlsx")
+```
+
+### MPI (in vivo) data
+
+```{r, Table S5A MFI-specific data}
+MPI <- subset (Trophoblasts, subset = Model == "MPI")
+table (Idents (MPI))
+```
+
+```{r, Figure 1D MFI-specific UMAP}
+UMAPPlot (MPI,
+          label   = TRUE,
+          pt.size = 3,
+          cols    = c('CTB 1'  = '#E31A1C',
+                      'CTB 2'  = '#999999',
+                      'CTB 3'  = '#225EA8',
+                      'CTB 4'  = '#984EA3',
+                      'TSC'    = '#A65628',
+                      'cCTB 1' = '#66C2A4',
+                      'cCTB 2' = '#FFD92F',
+                      'cCTB 3' = '#FF7F00',
+                      'EVT'    = '#006D2C',
+                      'SCTp 1' = '#F781BF',
+                      'SCTp 2' = '#800026')) + NoLegend ()
+```
+
+### PD-TOrg (in vitro) data
+
+```{r, Table S5A PD-TOrg-specific data}
+PD.TOrg <- subset (Trophoblasts, subset = Model == "PD.TOrg")
+table (Idents (PD.TOrg))
+```
+
+```{r, Figure 1D PD-TOrg-specific UMAP}
+UMAPPlot (PD.TOrg,
+          label   = TRUE,
+          pt.size = 3,
+          cols    = c('CTB 1'  = '#E31A1C',
+                      'CTB 2'  = '#999999',
+                      'CTB 3'  = '#225EA8',
+                      'CTB 4'  = '#984EA3',
+                      'TSC'    = '#A65628',
+                      'cCTB 1' = '#66C2A4',
+                      'cCTB 2' = '#FFD92F',
+                      'cCTB 3' = '#FF7F00',
+                      'EVT'    = '#006D2C',
+                      'SCTp 1' = '#F781BF',
+                      'SCTp 2' = '#800026')) + NoLegend ()
+```
+
+### hTSC-TOrg (in vitro) data
+
+```{r, Table S5A hTSC-TOrg-specific data}
+hTSC.TOrg <- subset (Trophoblasts, subset = Model == "hTSC.TOrg")
+table (Idents (hTSC.TOrg))
+```
+
+```{r, Figure 1D hTSC-TOrg-specific UMAP}
+UMAPPlot (hTSC.TOrg,
+          label   = TRUE,
+          pt.size = 3,
+          cols    = c('CTB 1'  = '#E31A1C',
+                      'CTB 2'  = '#999999',
+                      'CTB 3'  = '#225EA8',
+                      'CTB 4'  = '#984EA3',
+                      'TSC'    = '#A65628',
+                      'cCTB 1' = '#66C2A4',
+                      'cCTB 2' = '#FFD92F',
+                      'cCTB 3' = '#FF7F00',
+                      'EVT'    = '#006D2C',
+                      'SCTp 1' = '#F781BF',
+                      'SCTp 2' = '#800026')) + NoLegend ()
+```
+
+## Holistic model transcriptome-comparison
+
+```{r, trophoblast model-specific Pearson Correlation Coefficient analysis, data not plotted in paper}
+Idents (Trophoblasts) <- Trophoblasts@meta.data$Model
+av.exp                <- AverageExpression (Trophoblasts)$RNA
+cor.exp               <- as.data.frame     (cor (av.exp))
+cor.exp$x             <- rownames          (cor.exp)
+cor.df                <- tidyr::gather     (data = cor.exp, y, correlation, c('MPI', 'PD.TOrg', 'hTSC.TOrg'))
+cor.df
+
+ggplot               (cor.df, aes (x, y, fill = correlation)) +
+geom_tile            () +
+scale_fill_gradientn (limits = c(0, 1), colours = colorRampPalette (rev (brewer.pal (n = 7, name = "RdYlBu"))) (100))
+```
+
+```{r, Figure 1E analysis}
+DefaultAssay (MPI)       <- "RNA"
+DefaultAssay (PD.TOrg)   <- "RNA"
+DefaultAssay (hTSC.TOrg) <- "RNA"
+
+      MPI.averages <- AverageExpression (MPI,       group.by = "nCount_RNA", return.seurat = FALSE)
+  PD.TOrg.averages <- AverageExpression (PD.TOrg,   group.by = "nCount_RNA", return.seurat = FALSE)
+hTSC.TOrg.averages <- AverageExpression (hTSC.TOrg, group.by = "nCount_RNA", return.seurat = FALSE)
+
+DefaultAssay (MPI)       <- "integrated"
+DefaultAssay (PD.TOrg)   <- "integrated"
+DefaultAssay (hTSC.TOrg) <- "integrated"
+
+      MPI.genes <- rownames (MPI.averages$RNA       [rowSums (MPI.averages$RNA       []) > 0, ])
+  PD.TOrg.genes <- rownames (PD.TOrg.averages$RNA   [rowSums (PD.TOrg.averages$RNA   []) > 0, ])
+hTSC.TOrg.genes <- rownames (hTSC.TOrg.averages$RNA [rowSums (hTSC.TOrg.averages$RNA []) > 0, ])
+
+rm (MPI.averages)
+rm (PD.TOrg.averages)
+rm (hTSC.TOrg.averages)
+```
+
+```{r, Figure 1E}
+venn.diagram (x = list (MPI.genes,
+                        PD.TOrg.genes,
+                        hTSC.TOrg.genes),
+              category.names  = c    ("MPI", "PD-TOrg", "hTSC-TOrg"),
+              filename        = 'Trophoblast_Model_Venn.png',
+              output          = TRUE,
+              imagetype       = "png",
+              scaled          = FALSE,
+              label.col       = "black",
+              col             = "black",
+              fontfamily      = "sans",
+              cat.default.pos = "text",
+              margin          = 0.05)
+```
+
+```{r, Table S4A}
+Venn_Model <- get.venn.partitions (x = list (MPI.genes,
+                                             PD.TOrg.genes,
+                                             hTSC.TOrg.genes),
+                                   force.unique  = TRUE,
+                                   keep.elements = TRUE,
+                                   hierarchical  = FALSE)
+Venn_Model
+Venn_Model$..values..
+
+Model_20861 <- Venn_Model$..values..$`1`
+Model_801   <- Venn_Model$..values..$`2`
+Model_1581  <- Venn_Model$..values..$`3`
+Model_1460  <- Venn_Model$..values..$`4`
+Model_354   <- Venn_Model$..values..$`5`
+Model_247   <- Venn_Model$..values..$`6`
+Model_1214  <- Venn_Model$..values..$`7`
+
+write.xlsx (Model_20861, file = "Model_20861_Venn.xlsx")
+write.xlsx (Model_801,   file = "Model_801_Venn.xlsx")
+write.xlsx (Model_1581,  file = "Model_1581_Venn.xlsx")
+write.xlsx (Model_1460,  file = "Model_1460_Venn.xlsx")
+write.xlsx (Model_354,   file = "Model_354_Venn.xlsx")
+write.xlsx (Model_247,   file = "Model_247_Venn.xlsx")
+write.xlsx (Model_1214,  file = "Model_1214_Venn.xlsx")
+```
+
+## Integrated cell composition comparison
+
+```{r, Integrated trophoblast state binning}
+# Label integrated trophoblast states cell type
+             new.cluster.ids <- c('CTB 1'  = "CTB",
+                                  'CTB 2'  = "CTB",
+                                  'CTB 3'  = "CTB",
+                                  'CTB 4'  = "CTB",
+                                  'cCTB 1' = "PTB",
+                                  'cCTB 2' = "cCTB",
+                                  'cCTB 3' = "cCTB",
+                                  'cCTB 4' = "cCTB",
+                                  'EVT'    = "EVT",
+                                  'SCTp 1' = "SCTp",
+                                  'SCTp 2' = "SCTp")
+# Apply binned trophoblast labels to integrated Seurat object
+names (new.cluster.ids)      <- levels       (Trophoblasts)
+Trophoblasts$seurat_clusters <- Idents       (Trophoblasts)
+Trophoblasts                 <- RenameIdents (Trophoblasts, new.cluster.ids)
+```
+
+```{r, Figure 1F}
+ggplot             (Trophoblasts2@meta.data, aes (x = c(Trophoblasts2$Model), fill = Trophoblasts2$celltype)) +
+theme_classic2     () +
+geom_bar           (position     = "fill") +
+scale_y_continuous (labels       = scales::percent) +
+theme              (text         = element_text (size   = 35)) +
+theme              (axis.text    = element_text (size   = 35)) +
+theme              (axis.title.x = element_text (face   = "bold")) +
+theme              (axis.title.y = element_text (face   = "bold")) +
+theme              (legend.text  = element_text (size   = 15)) +
+theme              (axis.text.y  = element_text (angle  = 90)) +
+theme              (axis.text.y  = element_text (hjust  = 0.5)) +
+theme              (axis.text.x  = element_text (colour = "black")) +
+theme              (axis.text.y  = element_text (colour = "black")) +
+xlab               ("Trophoblast Model") +
+ylab               ("Cell Proportion")
+```
+
+## Integrated trophoblast gene expression comparison
+
+```{r, Figure 1G, analysis}
+Trophoblasts$celltype.model  <- paste       (Idents (Trophoblasts), Trophoblasts$Model, sep = "_")
+Trophoblasts$celltype        <- Idents      (Trophoblasts)
+
+       Idents (Trophoblasts) <- "celltype.model"
+
+# Table S5A
+table (Idents (Trophoblasts))
+```
+
+```{r, Figure 1G}
+DefaultAssay (Trophoblasts) <- "RNA"
+Idents       (Trophoblasts) <- "celltype.model"
+
+my_levels <- c("CTB 4_MPI",  "CTB 4_PD.TOrg",  "CTB 4_hTSC.TOrg",
+               "CTB 3_MPI",  "CTB 3_PD.TOrg",  "CTB 3_hTSC.TOrg",
+               "CTB 2_MPI",  "CTB 2_PD.TOrg",  "CTB 2_hTSC.TOrg",
+               "CTB 1_MPI",  "CTB 1_PD.TOrg",  "CTB 1_hTSC.TOrg",
+                 "TSC_MPI",    "TSC_PD.TOrg",    "TSC_hTSC.TOrg",
+              "cCTB 1_MPI", "cCTB 1_PD.TOrg", "cCTB 1_hTSC.TOrg",
+              "cCTB 2_MPI", "cCTB 2_PD.TOrg", "cCTB 2_hTSC.TOrg",
+              "cCTB 3_MPI", "cCTB 3_PD.TOrg", "cCTB 3_hTSC.TOrg",
+                 "EVT_MPI",    "EVT_PD.TOrg",    "EVT_hTSC.TOrg",
+              "SCTp 1_MPI", "SCTp 1_PD.TOrg", "SCTp 1_hTSC.TOrg",
+              "SCTp 2_MPI", "SCTp 2_PD.TOrg", "SCTp 2_hTSC.TOrg")
+
+Trophoblasts@active.ident <- factor (Trophoblasts@active.ident, levels = my_levels)
+
+DotPlot (Trophoblasts,
+         features  = c("CGB",
+                       "ERVFRD-1",
+                       "SDC1",
+                       "HLA-G",
+                       "ITGA5",
+                       "ITGA1",
+                       "NOTCH2",
+                       "ITGA2",
+                       "NOTCH1",
+                       "EPCAM",
+                       "TEAD4",
+                       "TP63",
+                       "BCAM",
+                       "ELF5",
+                       "TFAP2A",
+                       "TFAP2C",
+                       "GATA2",
+                       "GATA3",
+                       "MKI67",
+                       "CCNA2"),
+         assay     = "RNA",
+         cols      = c("lightgrey", "red"),
+         col.min   = 0,
+         col.max   = 1,
+         dot.min   = 0,
+         dot.scale = 15)
+```
+
+# Supplemental Figure 1
+
+## Integrated trophoblast state PCC bulk-transcriptomic comparison
+
+```{r, Integrated trophoblast state binning}
+# Label integrated trophoblast states cell type
+             new.cluster.ids <- c('CTB 1'  = "CTB",
+                                  'CTB 2'  = "CTB",
+                                  'CTB 3'  = "CTB",
+                                  'CTB 4'  = "CTB",
+                                  'cCTB 1' = "PTB",
+                                  'cCTB 2' = "cCTB",
+                                  'cCTB 3' = "cCTB",
+                                  'cCTB 4' = "cCTB",
+                                  'EVT'    = "EVT",
+                                  'SCTp 1' = "SCTp",
+                                  'SCTp 2' = "SCTp")
+# Apply binned trophoblast labels to integrated Seurat object
+names (new.cluster.ids)      <- levels       (Trophoblasts)
+Trophoblasts$seurat_clusters <- Idents       (Trophoblasts)
+Trophoblasts                 <- RenameIdents (Trophoblasts, new.cluster.ids)
+```
+
+```{r, Supplemental figure 1F}
+table (Idents (Trophoblasts))
+
+av.exp    <- AverageExpression (Trophoblasts)$RNA
+cor.exp   <- as.data.frame     (cor (av.exp))
+cor.exp$x <- rownames          (cor.exp)
+cor.df    <- tidyr::gather     (data = cor.exp, y, correlation, c('CTB', 'TSC', 'SCTp', 'cCTB', 'EVT'))
+cor.df
+
+ggplot               (cor.df, aes (x, y, fill = correlation)) +
+geom_tile            () +
+scale_fill_gradientn (limits = c(0,1), colours = colorRampPalette (rev (brewer.pal (n = 7, name = "RdYlBu"))) (100))
+```

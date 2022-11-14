@@ -1,0 +1,783 @@
+---
+title: "MODEL_COMPARISON_FIGURE3"
+author: "Matthew J Shannon"
+date: "08/11/2022"
+output: html_document
+---
+
+# Load in all dependencies
+
+```{r, include = FALSE}
+devtools::install_github ('chris-mcginnis-ucsf/DoubletFinder')
+devtools::install_github ('satijalab/seurat-wrappers')
+remotes::install_github  ("mojaveazure/seurat-disk")
+devtools::install_github ("velocyto-team/velocyto.R")
+BiocManager::install     ("pcaMethods")
+BiocManager::install     ('MAST')
+BiocManager::install     ('org.Hs.eg.db')
+BiocManager::install     (version = "3.12")
+BiocManager::install     ('Seurat')
+BiocManager::install     ('readxl')
+BiocManager::install     ('modes')
+BiocManager::install     ('pheatmap')
+BiocManager::install     ('limma')
+BiocManager::install     ('clustree')
+BiocManager::install     ('clusterProfiler')
+BiocManager::install     ('EnhancedVolcano')
+install.packages         ('fields')
+install.packages         ('plotly')
+install.packages         ("VennDiagram")
+library                  (Seurat)
+library                  (readr)
+library                  (tidyverse)
+library                  (Matrix)
+library                  (dplyr)
+library                  (ggplot2)
+library                  (cowplot)
+library                  (tibble)
+library                  (readxl)
+library                  (sctransform)
+library                  (fields)
+library                  (KernSmooth)
+library                  (ROCR)
+library                  (parallel)
+library                  (reshape2)
+library                  (pheatmap)
+library                  (DoubletFinder)
+library                  (limma)
+library                  (SeuratWrappers)
+library                  (SeuratDisk)
+library                  (plotly)
+library                  (clustree)
+library                  (velocyto.R)
+library                  (MAST)
+library                  (EnhancedVolcano)
+library                  (clusterProfiler)
+library                  (AnnotationDbi)
+library                  (org.Hs.eg.db)
+library                  (VennDiagram)
+library                  (RColorBrewer)
+library                  (EnhancedVolcano)
+library                  (monocle2)
+library                  (monocle3)
+library                  (patchwork)
+library                  (magrittr)
+library                  (ggpubr)
+```
+
+# Load the integrated and model-specific trophoblast Seurat objects
+
+```{r}
+# Integrated (all models) trophoblast object
+load         (file = "~/Desktop/FINAL_Trophoblast_Data.Rdata")
+DefaultAssay (Trophoblasts) <- "integrated"
+
+# MPI (in vivo) trophoblast object
+load         (file = "~/Desktop/MPI.Rdata")
+DefaultAssay (MPI) <- "integrated"
+
+# PD-TOrg (in vitro) trophoblast object
+load         (file = "~/Desktop/PD_TOrg.Rdata")
+DefaultAssay (PD.TOrg) <- "integrated"
+
+# hTSC-TOrg (in vitro) trophoblast object
+load         (file = "~/Desktop/hTSC_TOrg.Rdata")
+DefaultAssay (hTSC.TOrg) <- "integrated"
+```
+
+# Supplemental Figure 2
+
+## Model-specific orgin gene signatures
+
+```{r, Supplmental figure 2A}
+# Plotting the MPI (in vivo) progenitor gene signature
+DefaultAssay (MPI) <- "RNA"
+FeaturePlot  (MPI, features = c("TP63"),   label = FALSE, pt.size = 3, min.cutoff = 0, order = TRUE, cols = c("grey", "red"))
+FeaturePlot  (MPI, features = c("BCAM"),   label = FALSE, pt.size = 3, min.cutoff = 0, order = TRUE, cols = c("grey", "red"))
+FeaturePlot  (MPI, features = c("SPINT1"), label = FALSE, pt.size = 3, min.cutoff = 0, order = TRUE, cols = c("grey", "red"))
+FeaturePlot  (MPI, features = c("TEAD4"),  label = FALSE, pt.size = 3, min.cutoff = 0, order = TRUE, cols = c("grey", "red"))
+FeaturePlot  (MPI, features = c("ELF5"),   label = FALSE, pt.size = 3, min.cutoff = 0, order = TRUE, cols = c("grey", "red"))
+FeaturePlot  (MPI, features = c("EGFR"),   label = FALSE, pt.size = 3, min.cutoff = 0, order = TRUE, cols = c("grey", "red"))
+DefaultAssay (MPI) <- "integrated"
+
+# Plotting the PD-TOrg (in vitro) progenitor gene signature
+DefaultAssay (PD.TOrg) <- "RNA"
+FeaturePlot  (PD.TOrg, features = c("TP63"),   label = FALSE, pt.size = 3, min.cutoff = 0, order = TRUE, cols = c("grey", "red"))
+FeaturePlot  (PD.TOrg, features = c("BCAM"),   label = FALSE, pt.size = 3, min.cutoff = 0, order = TRUE, cols = c("grey", "red"))
+FeaturePlot  (PD.TOrg, features = c("SPINT1"), label = FALSE, pt.size = 3, min.cutoff = 0, order = TRUE, cols = c("grey", "red"))
+FeaturePlot  (PD.TOrg, features = c("TEAD4"),  label = FALSE, pt.size = 3, min.cutoff = 0, order = TRUE, cols = c("grey", "red"))
+FeaturePlot  (PD.TOrg, features = c("ELF5"),   label = FALSE, pt.size = 3, min.cutoff = 0, order = TRUE, cols = c("grey", "red"))
+FeaturePlot  (PD.TOrg, features = c("EGFR"),   label = FALSE, pt.size = 3, min.cutoff = 0, order = TRUE, cols = c("grey", "red"))
+DefaultAssay (PD.TOrg) <- "integrated"
+
+# Plotting the hTSC-TOrg (in vitro) progenitor gene signature
+DefaultAssay (hTSC.TOrg) <- "RNA"
+FeaturePlot  (hTSC.TOrg, features = c("TP63"),   label = FALSE, pt.size = 3, min.cutoff = 0, order = TRUE, cols = c("grey", "red"))
+FeaturePlot  (hTSC.TOrg, features = c("BCAM"),   label = FALSE, pt.size = 3, min.cutoff = 0, order = TRUE, cols = c("grey", "red"))
+FeaturePlot  (hTSC.TOrg, features = c("SPINT1"), label = FALSE, pt.size = 3, min.cutoff = 0, order = TRUE, cols = c("grey", "red"))
+FeaturePlot  (hTSC.TOrg, features = c("TEAD4"),  label = FALSE, pt.size = 3, min.cutoff = 0, order = TRUE, cols = c("grey", "red"))
+FeaturePlot  (hTSC.TOrg, features = c("ELF5"),   label = FALSE, pt.size = 3, min.cutoff = 0, order = TRUE, cols = c("grey", "red"))
+FeaturePlot  (hTSC.TOrg, features = c("EGFR"),   label = FALSE, pt.size = 3, min.cutoff = 0, order = TRUE, cols = c("grey", "red"))
+DefaultAssay (hTSC.TOrg) <- "integrated"
+```
+
+## Model-specific origin selection/subset
+
+### MPI (in vivo) trophoblast origin subset
+
+```{r, Supplemental figure 2B MPI origin subset}
+MPI_ORIGIN <- subset (MPI, idents = c("CTB 1", "CTB 3")) # Use the non-binned cell clusters
+MPI_ORIGIN
+```
+
+```{r, Supplemental figure 2B MPI origin re-clustering}
+#redo find neighbours/clusters
+MPI_ORIGIN <- FindNeighbors (MPI_ORIGIN)
+MPI_ORIGIN <- FindClusters  (MPI_ORIGIN, resolution = 0.250)
+
+# Reduce trophoblast data dimensionality
+MPI_ORIGIN <- RunUMAP (MPI_ORIGIN, reduction  = "pca", dims = 1:30)
+MPI_ORIGIN <- RunTSNE (MPI_ORIGIN, reduction  = "pca", dims = 1:30)
+MPI_ORIGIN
+```
+
+```{r, Supplemental figure 2B MPI origin UMAP}
+UMAPPlot (MPI_ORIGIN, label = TRUE, pt.size = 3) + NoLegend ()
+```
+
+### PD-TOrg (in vitro) trophoblast origin subset
+
+```{r, Supplemental figure 2B PD-TOrg origin subset}
+PD.TOrg_ORIGIN <- subset (PD.TOrg, idents = c("CTB 1")) # Use the non-binned cell clusters
+PD.TOrg_ORIGIN
+```
+
+```{r, Supplemental figure 2B PD-TOrg origin re-clustering}
+#redo find neighbours/clusters
+PD.TOrg_ORIGIN <- FindNeighbors (PD.TOrg_ORIGIN)
+PD.TOrg_ORIGIN <- FindClusters  (PD.TOrg_ORIGIN, resolution = 0.150)
+
+# Reduce trophoblast data dimensionality
+PD.TOrg_ORIGIN <- RunUMAP (PD.TOrg_ORIGIN, reduction  = "pca", dims = 1:30)
+PD.TOrg_ORIGIN <- RunTSNE (PD.TOrg_ORIGIN, reduction  = "pca", dims = 1:30)
+PD.TOrg_ORIGIN
+```
+
+```{r, Supplemental figure 2B PD-TOrg origin UMAP}
+UMAPPlot (PD.TOrg_ORIGIN, label = TRUE, pt.size = 3) + NoLegend ()
+```
+
+### hTSC-TOrg (in vitro) trophoblast origin subset
+
+```{r, Supplemental figure 2B hTSC-TOrg origin subset}
+hTSC.TOrg_ORIGIN <- subset (hTSC.TOrg, idents = c("TSC 1")) # Use the non-binned cell clusters
+hTSC.TOrg_ORIGIN
+```
+
+```{r, Supplemental figure 2B hTSC-TOrg origin re-clustering}
+#redo find neighbours/clusters
+hTSC.TOrg_ORIGIN <- FindNeighbors (hTSC.TOrg_ORIGIN)
+hTSC.TOrg_ORIGIN <- FindClusters  (hTSC.TOrg_ORIGIN, resolution = 0.200)
+
+# Reduce trophoblast data dimensionality
+hTSC.TOrg_ORIGIN <- RunUMAP (hTSC.TOrg_ORIGIN, reduction  = "pca", dims = 1:30)
+hTSC.TOrg_ORIGIN <- RunTSNE (hTSC.TOrg_ORIGIN, reduction  = "pca", dims = 1:30)
+hTSC.TOrg_ORIGIN
+```
+
+```{r, Supplemental figure 2B hTSC-TOrg origin UMAP}
+UMAPPlot (hTSC.TOrg_ORIGIN, label = TRUE, pt.size = 3) + NoLegend ()
+```
+
+# Figure 3
+
+## Monocle2 pseudotime analyses
+
+### MPI (in vivo) trophoblasts
+
+```{r, Figure 3A MPI (in vivo) analysis}
+MPI.monocle <- as.CellDataSet      (MPI, assay = "RNA")
+MPI.monocle <- estimateSizeFactors (MPI.monocle)
+MPI.monocle <- estimateDispersions (MPI.monocle)
+MPI.monocle <- detectGenes         (MPI.monocle, min_expr = 0.1)
+               print               (head (fData (MPI.monocle)))
+```
+
+```{r, Figure 3A MPI (in vivo) analysis}
+MPI.monocle_expressed_genes <- row.names (subset (fData (MPI.monocle), num_cells_expressed >= 10))
+```
+
+```{r, Figure 3A MPI (in vivo) analysis}
+ERVFRD_id <- row.names (subset (fData (MPI.monocle), gene_short_name == "ERVFRD-1"))
+HLAG_id   <- row.names (subset (fData (MPI.monocle), gene_short_name == "HLA-G"   ))
+CDX2_id   <- row.names (subset (fData (MPI.monocle), gene_short_name == "CDX2"    ))
+BCAM_id   <- row.names (subset (fData (MPI.monocle), gene_short_name == "BCAM"    ))
+SPINT1_id <- row.names (subset (fData (MPI.monocle), gene_short_name == "SPINT1"  ))
+ELF5_id   <- row.names (subset (fData (MPI.monocle), gene_short_name == "ELF5"    ))
+SDC1_id   <- row.names (subset (fData (MPI.monocle), gene_short_name == "SDC1"    ))
+GCM1_id   <- row.names (subset (fData (MPI.monocle), gene_short_name == "GCM1"    ))
+
+MPI.monocle.2 <- newCellTypeHierarchy ()
+MPI.monocle.2 <- addCellType   (MPI.monocle.2,
+                                "SCT",
+                                classify_func = function (x) { x [ERVFRD_id,  ]  >= 1.00 &
+                                                               x [GCM1_id,    ]  >= 2.00 &
+                                                               x [SDC1_id,    ]  >= 1.00   })
+MPI.monocle.2 <- addCellType   (MPI.monocle.2,
+                                "EVT",
+                                classify_func = function (x) { x [HLAG_id,    ]  >= 2.00 &
+                                                               x [GCM1_id,    ]  >= 2.00 &
+                                                               x [SDC1_id,    ]  >= 1.00   })
+MPI.monocle.2 <- addCellType   (MPI.monocle.2,
+                                "CTB",
+                                classify_func = function (x) { x [CDX2_id,    ]  >= 0.50 &
+                                                               x [SPINT1_id,  ]  >= 2.00 &
+                                                               x [ELF5_id,    ]  >= 0.50 &
+                                                               x [BCAM_id,    ]  >= 2.00 &
+                                                               x [ERVFRD_id,  ]  <  1.00 &
+                                                               x [SDC1_id,    ]  <  1.00 &
+                                                               x [HLAG_id,    ]  <  2.00   })
+MPI.monocle   <- classifyCells (MPI.monocle, MPI.monocle.2)
+```
+
+```{r, Figure 3A MPI (in vivo) analysis}
+MPI_marker_diff              <- markerDiffTable   (MPI.monocle[invivo.monocle_expressed_genes, ], MPI.monocle.2, cores = 4)
+MPI_semisup_clustering_genes <- row.names         (MPI_marker_diff)[order (MPI_marker_diff$qval)][1:500]
+MPI.monocle                  <- setOrderingFilter (MPI.monocle, MPI_semisup_clustering_genes)
+
+rm (MPI.monocle.2)
+rm (MPI_marker_diff)
+rm (MPI_semisup_clustering_genes)
+```
+
+```{r, Figure 3A MPI (in vivo) analysis}
+MPI.monocle <- reduceDimension (MPI.monocle,
+                                   max_components = 2,
+                                   method         = 'DDRTree',
+                                   norm_method    = 'none',
+                                   pseudo_expr    = 0)
+MPI.monocle <- orderCells      (MPI.monocle)
+MPI.monocle <- orderCells      (MPI.monocle, root_state = 3)
+```
+
+```{r, Figure 3A MPI (in vivo) Monocle2 pseudotime trajectory}
+plot_cell_trajectory (MPI.monocle,
+                      color_by           =   "seurat_clusters",
+                      cell_size          = 3,
+                      show_branch_points = FALSE) +
+scale_color_manual   (values             = c("#F8766D",
+                                             "#CD9600",
+                                             "#7CAE00",
+                                             "#00BE67",
+                                             "#C77CFF",
+                                             "#00A9FF",
+                                             "#00BFC4",
+                                             "#FF61CC"),
+                      name               =   "cluster") + NoLegend ()
+```
+
+```{r, Figure 3B MPI (in vivo) analysis}
+MPI_BEAM_res <- BEAM (MPI.monocle, branch_point = 1, cores = 1)
+MPI_BEAM_res <- MPI_BEAM_res [order (MPI_BEAM_res$qval), ]
+MPI_BEAM_res <- MPI_BEAM_res [ , c("gene_short_name", "pval", "qval")]
+
+head (MPI_BEAM_res)
+```
+
+```{r, Figure 3B MPI (in vivo) gene selection}
+TARGETED_genes <- row.names (subset (fData (MPI.monocle), gene_short_name %in% c("BCAM",
+                                                                                 "SPINT1",
+                                                                                 "TP63",
+                                                                                 "ELF5",
+                                                                                 "TEAD4",
+                                                                                 "ERVW-1",
+                                                                                 "ERVFRD-1",
+                                                                                 "CGB",
+                                                                                 "NOTCH1",
+                                                                                 "ITGA2",
+                                                                                 "NOTCH2",
+                                                                                 "ITGA5",
+                                                                                 "HLA-G",
+                                                                                 "ITGA1")))
+```
+
+```{r, Figure 3B MPI (in vivo) branched Monocle2 pseudotime heatmap}
+MPI_branched_heatmap <- plot_genes_branched_heatmap (MPI.monocle[TARGETED_genes, ],
+                                                     branch_point        = 1,
+                                                     branch_labels       = c("EVT", "SCT"),
+                                                     cores               = 1,
+                                                     use_gene_short_name = TRUE,
+                                                     show_rownames       = TRUE,
+                                                     cluster_rows        = FALSE,
+                                                     num_clusters        = 1, 
+                                                     return_heatmap      = FALSE )
+```
+
+### PD-TOrg (in vitro) trophoblasts
+
+```{r, Figure 3A PD-TOrg (in vitro) analysis}
+PD.TOrg.monocle <- as.CellDataSet      (PD.TOrg, assay = "RNA")
+PD.TOrg.monocle <- estimateSizeFactors (PD.TOrg.monocle)
+PD.TOrg.monocle <- estimateDispersions (PD.TOrg.monocle)
+PD.TOrg.monocle <- detectGenes         (PD.TOrg.monocle, min_expr = 0.1)
+                   print               (head (fData (PD.TOrg.monocle)))
+```
+
+```{r, Figure 3A PD-TOrg (in vitro) analysis}
+PD.TOrg.monocle_expressed_genes <- row.names (subset (fData (PD.TOrg.monocle), num_cells_expressed >= 10))
+```
+
+```{r, Figure 3A PD-TOrg (in vitro) analysis}
+ERVFRD_id <- row.names (subset (fData (PD.TOrg.monocle), gene_short_name == "ERVFRD-1"))
+HLAG_id   <- row.names (subset (fData (PD.TOrg.monocle), gene_short_name == "HLA-G"   ))
+CDX2_id   <- row.names (subset (fData (PD.TOrg.monocle), gene_short_name == "CDX2"    ))
+BCAM_id   <- row.names (subset (fData (PD.TOrg.monocle), gene_short_name == "BCAM"    ))
+SPINT1_id <- row.names (subset (fData (PD.TOrg.monocle), gene_short_name == "SPINT1"  ))
+ELF5_id   <- row.names (subset (fData (PD.TOrg.monocle), gene_short_name == "ELF5"    ))
+SDC1_id   <- row.names (subset (fData (PD.TOrg.monocle), gene_short_name == "SDC1"    ))
+GCM1_id   <- row.names (subset (fData (PD.TOrg.monocle), gene_short_name == "GCM1"    ))
+
+PD.TOrg.monocle.2 <- newCellTypeHierarchy ()
+PD.TOrg.monocle.2 <- addCellType   (PD.TOrg.monocle.2,
+                                    "SCT",
+                                    classify_func = function (x) { x [ERVFRD_id,  ]  >= 1.00 &
+                                                                   x [GCM1_id,    ]  >= 2.00 &
+                                                                   x [SDC1_id,    ]  >= 1.00   })
+PD.TOrg.monocle.2 <- addCellType   (PD.TOrg.monocle.2,
+                                    "EVT",
+                                    classify_func = function (x) { x [HLAG_id,    ]  >= 2.00 &
+                                                                   x [GCM1_id,    ]  >= 2.00 &
+                                                                   x [SDC1_id,    ]  >= 1.00   })
+PD.TOrg.monocle.2 <- addCellType   (PD.TOrg.monocle.2,
+                                    "CTB",
+                                    classify_func = function (x) { x [CDX2_id,    ]  >= 0.50 &
+                                                                   x [SPINT1_id,  ]  >= 2.00 &
+                                                                   x [ELF5_id,    ]  >= 0.50 &
+                                                                   x [BCAM_id,    ]  >= 2.00 &
+                                                                   x [ERVFRD_id,  ]  <  1.00 &
+                                                                   x [SDC1_id,    ]  <  1.00 &
+                                                                   x [HLAG_id,    ]  <  2.00   })
+PD.TOrg.monocle   <- classifyCells (PD.TOrg.monocle, PD.TOrg.monocle.2)
+```
+
+```{r, Figure 3A PD-TOrg (in vitro) analysis}
+PD.TOrg_marker_diff              <- markerDiffTable   (PD.TOrg.monocle[PD.TOrg.monocle_expressed_genes, ], PD.TOrg.monocle.2, cores = 4)
+PD.TOrg_semisup_clustering_genes <- row.names         (PD.TOrg_marker_diff)[order (PD.TOrg_marker_diff$qval)][1:250]
+PD.TOrg.monocle                  <- setOrderingFilter (PD.TOrg.monocle, PD.TOrg_semisup_clustering_genes)
+
+rm (PD.TOrg.monocle.2)
+rm (PD.TOrg_marker_diff)
+rm (PD.TOrg_semisup_clustering_genes)
+```
+
+```{r, Figure 3A PD-TOrg (in vitro) analysis}
+PD.TOrg.monocle <- reduceDimension (PD.TOrg.monocle,
+                                   max_components = 2,
+                                   method         = 'DDRTree',
+                                   norm_method    = 'none',
+                                   pseudo_expr    = 0)
+PD.TOrg.monocle <- orderCells     (PD.TOrg.monocle)
+PD.TOrg.monocle <- orderCells     (PD.TOrg.monocle, root_state = 3)
+```
+
+```{r, Figure 3A PD-TOrg (in vitro) Monocle2 pseudotime trajectory}
+plot_cell_trajectory (PD.TOrg.monocle,
+                      color_by           =   "seurat_clusters",
+                      cell_size          = 3,
+                      show_branch_points = FALSE) +
+scale_color_manual   (values             = c("#F8766D",
+                                             "#7CAE00",
+                                             "#00A9FF",
+                                             "#C77CFF",
+                                             "#00BFC4",
+                                             "#FF61CC"),
+                      name               =   "cluster") + NoLegend ()
+```
+
+```{r, Figure 3B PD-TOrg (in vitro) analysis}
+PD.TOrg_BEAM_res <- BEAM (PD.TOrg.monocle, branch_point = 1, cores = 4)
+PD.TOrg_BEAM_res <- PD.TOrg_BEAM_res [order (PD.TOrg_BEAM_res$qval), ]
+PD.TOrg_BEAM_res <- PD.TOrg_BEAM_res [ , c("gene_short_name", "pval", "qval")]
+
+head (PD.TOrg_BEAM_res)
+```
+
+```{r, Figure 3B PD-TOrg (in vitro) gene selection}
+TARGETED_genes <- row.names (subset (fData (PD.TOrg.monocle), gene_short_name %in% c("BCAM",
+                                                                                     "SPINT1",
+                                                                                     "TP63",
+                                                                                     "ELF5",
+                                                                                     "TEAD4",
+                                                                                     "ERVW-1",
+                                                                                     "ERVFRD-1",
+                                                                                     "CGB",
+                                                                                     "NOTCH1",
+                                                                                     "ITGA2",
+                                                                                     "NOTCH2",
+                                                                                     "ITGA5",
+                                                                                     "HLA-G",
+                                                                                     "ITGA1")))
+```
+
+```{r, Figure 3B PD-TOrg (in vitro) branched Monocle2 pseudotime heatmap}
+PD.TOrg_branched_heatmap <- plot_genes_branched_heatmap (PD.TOrg.monocle[TARGETED_genes, ],
+                                                         branch_point        = 1,
+                                                         branch_labels       = c("EVT", "SCT"),
+                                                         cores               = 1,
+                                                         use_gene_short_name = TRUE,
+                                                         show_rownames       = TRUE,
+                                                         cluster_rows        = FALSE,
+                                                         num_clusters        = 1, 
+                                                         return_heatmap      = FALSE )
+```
+
+### hTSC-TOrg (in vitro) trophoblasts
+
+```{r, Figure 3A hTSC-TOrg (in vitro) analysis}
+hTSC.TOrg.monocle <- as.CellDataSet      (hTSC.TOrg, assay = "RNA")
+hTSC.TOrg.monocle <- estimateSizeFactors (hTSC.TOrg.monocle)
+hTSC.TOrg.monocle <- estimateDispersions (hTSC.TOrg.monocle)
+hTSC.TOrg.monocle <- detectGenes         (hTSC.TOrg.monocle, min_expr = 0.1)
+                     print               (head (fData (hTSC.TOrg.monocle)))
+```
+
+```{r, Figure 3A hTSC-TOrg (in vitro) analysis}
+hTSC.TOrg.monocle_expressed_genes <- row.names (subset (fData (hTSC.TOrg.monocle), num_cells_expressed >= 10))
+```
+
+```{r, Figure 3A hTSC-TOrg (in vitro) analysis}
+ERVFRD_id <- row.names (subset (fData (hTSC.TOrg.monocle), gene_short_name == "ERVFRD-1"))
+HLAG_id   <- row.names (subset (fData (hTSC.TOrg.monocle), gene_short_name == "HLA-G"   ))
+BCAM_id   <- row.names (subset (fData (hTSC.TOrg.monocle), gene_short_name == "BCAM"    ))
+SPINT1_id <- row.names (subset (fData (hTSC.TOrg.monocle), gene_short_name == "SPINT1"  ))
+ELF5_id   <- row.names (subset (fData (hTSC.TOrg.monocle), gene_short_name == "ELF5"    ))
+SDC1_id   <- row.names (subset (fData (hTSC.TOrg.monocle), gene_short_name == "SDC1"    ))
+GCM1_id   <- row.names (subset (fData (hTSC.TOrg.monocle), gene_short_name == "GCM1"    ))
+
+hTSC.TOrg.monocle.2 <- newCellTypeHierarchy ()
+hTSC.TOrg.monocle.2 <- addCellType   (hTSC.TOrg.monocle.2,
+                                      "SCT",
+                                      classify_func = function (x) { x [ERVFRD_id,  ]  >= 1.00 &
+                                                                     x [GCM1_id,    ]  >= 2.00 &
+                                                                     x [SDC1_id,    ]  >= 1.00   })
+hTSC.TOrg.monocle.2 <- addCellType   (hTSC.TOrg.monocle.2,
+                                      "EVT",
+                                      classify_func = function (x) { x [HLAG_id,    ]  >= 2.00 &
+                                                                     x [GCM1_id,    ]  >= 2.00 &
+                                                                     x [SDC1_id,    ]  >= 1.00   })
+hTSC.TOrg.monocle.2 <- addCellType   (hTSC.TOrg.monocle.2,
+                                      "CTB",
+                                      classify_func = function (x) { x [SPINT1_id,  ]  >= 2.00 &
+                                                                     x [ELF5_id,    ]  >= 0.50 &
+                                                                     x [BCAM_id,    ]  >= 2.00 &
+                                                                     x [ERVFRD_id,  ]  <  1.00 &
+                                                                     x [SDC1_id,    ]  <  1.00 &
+                                                                     x [HLAG_id,    ]  <  2.00   })
+hTSC.TOrg.monocle   <- classifyCells (hTSC.TOrg.monocle, hTSC.TOrg.monocle.2)
+```
+
+```{r, Figure 3A hTSC-TOrg (in vitro) analysis}
+hTSC.TOrg_marker_diff              <- markerDiffTable   (hTSC.TOrg.monocle[hTSC.TOrg.monocle_expressed_genes, ], hTSC.TOrg.monocle.2, cores = 4)
+hTSC.TOrg_semisup_clustering_genes <- row.names         (hTSC.TOrg_marker_diff)[order (hTSC.TOrg_marker_diff$qval)][1:500]
+hTSC.TOrg.monocle                  <- setOrderingFilter (hTSC.TOrg.monocle, hTSC.TOrg_semisup_clustering_genes)
+
+rm (hTSC.TOrg.monocle.2)
+rm (hTSC.TOrg_marker_diff)
+rm (hTSC.TOrg_semisup_clustering_genes)
+```
+
+```{r, Figure 3A hTSC-TOrg (in vitro) analysis}
+hTSC.TOrg.monocle <- reduceDimension (hTSC.TOrg.monocle,
+                                      max_components = 2,
+                                      method         = 'DDRTree',
+                                      norm_method    = 'none',
+                                      pseudo_expr    = 0)
+hTSC.TOrg.monocle <- orderCells      (hTSC.TOrg.monocle)
+hTSC.TOrg.monocle <- orderCells      (hTSC.TOrg.monocle, root_state = 3)
+```
+
+```{r, Figure 3A hTSC-TOrg (in vitro) Monocle2 pseudotime trajectory}
+plot_cell_trajectory (hTSC.TOrg.monocle,
+                      color_by           =   "seurat_clusters",
+                      cell_size          = 3,
+                      show_branch_points = FALSE) +
+scale_color_manual   (values             = c("#7CAE00",
+                                             "#00A9FF",
+                                             "#00BFC4",
+                                             "#F8766D",
+                                             "#AEA200",
+                                             "#FF61CC",
+                                             "#C77CFF"),
+                      name               =   "cluster") + NoLegend ()
+```
+
+```{r, Figure 3B hTSC-TOrg (in vitro) analysis}
+invitro_BEAM_res <- BEAM (hTSC.TOrg.monocle, branch_point = 1, cores = 4)
+invitro_BEAM_res <- invitro_BEAM_res [order (invitro_BEAM_res$qval), ]
+invitro_BEAM_res <- invitro_BEAM_res [ , c("gene_short_name", "pval", "qval")]
+
+head (invitro_BEAM_res)
+```
+
+```{r, Figure 3B hTSC-TOrg (in vitro) gene selection}
+TARGETED_genes <- row.names (subset (fData (hTSC.TOrg.monocle), gene_short_name %in% c("BCAM",
+                                                                                       "SPINT1",
+                                                                                       "TP63",
+                                                                                       "ELF5",
+                                                                                       "TEAD4",
+                                                                                       "ERVW-1",
+                                                                                       "ERVFRD-1",
+                                                                                       "CGB",
+                                                                                       "NOTCH1",
+                                                                                       "ITGA2",
+                                                                                       "NOTCH2",
+                                                                                       "ITGA5",
+                                                                                       "HLA-G",
+                                                                                       "ITGA1")))
+```
+
+```{r, Figure 3B hTSC-TOrg (in vitro) branched Monocle2 pseudotime heatmap}
+hTSC.TOrg_branched_heatmap  <- plot_genes_branched_heatmap (hTSC.TOrg.monocle[TARGETED_genes, ],
+                                                            branch_point        = 1,
+                                                            branch_labels       = c("EVT", "SCT"),
+                                                            cores               = 1,
+                                                            use_gene_short_name = TRUE,
+                                                            show_rownames       = TRUE,
+                                                            cluster_rows        = FALSE,
+                                                            num_clusters        = 1, 
+                                                            return_heatmap      = FALSE )
+```
+
+## Monocle3 pseudotime analyses
+
+### MPI (in vivo) trophoblasts
+
+```{r, Figure 3C MPI analysis}
+MPI.monocle3 <- as.cell_data_set      (MPI, assay = "RNA")
+MPI.monocle3 <- estimate_size_factors (MPI.monocle3)
+MPI.monocle3 <- cluster_cells         (MPI.monocle3,
+                                       reduction_method = c("UMAP"),
+                                       cluster_method   = "leiden",
+                                       partition_qval   = 0.05,
+                                       resolution       = 0.0005)
+
+p1  <- plot_cells (MPI.monocle3,                               show_trajectory_graph = FALSE)
+p2  <- plot_cells (MPI.monocle3, color_cells_by = "partition", show_trajectory_graph = FALSE)
+wrap_plots        (p1, p2)
+```
+
+```{r, Figure 3C MPI analysis}
+MPI.monocle3 <- learn_graph (MPI.monocle3, use_partition = FALSE, close_loop = TRUE)
+```
+
+```{r, Figure 3C MPI pseudotime UMAP}
+MPI.monocle3 <- order_cells (MPI.monocle3)
+
+plot_cells (MPI.monocle3,
+            color_cells_by                = "pseudotime",
+            label_cell_groups             = FALSE,
+            label_leaves                  = FALSE,
+            label_branch_points           = FALSE,
+            graph_label_size              = 1.5,
+            cell_size                     = 3,
+            trajectory_graph_color        = "black",
+            trajectory_graph_segment_size = 1.25)
+```
+
+### PD-TOrg (in vitro) trophoblasts
+
+```{r, Figure 3C PD-TOrg analysis}
+PD.TOrg.monocle3 <- as.cell_data_set      (exvivo, assay = "RNA")
+PD.TOrg.monocle3 <- estimate_size_factors (PD.TOrg.monocle3)
+PD.TOrg.monocle3 <- cluster_cells         (PD.TOrg.monocle3,
+                                           reduction_method = c("UMAP"),
+                                           cluster_method   = "leiden",
+                                           partition_qval   = 0.05,
+                                           resolution       = 0.0005)
+
+p1  <- plot_cells (PD.TOrg.monocle3,                               show_trajectory_graph = FALSE)
+p2  <- plot_cells (PD.TOrg.monocle3, color_cells_by = "partition", show_trajectory_graph = FALSE)
+wrap_plots        (p1, p2)
+```
+
+```{r, Figure 3C PD-TOrg analysis}
+PD.TOrg.monocle3 <- learn_graph (PD.TOrg.monocle3, use_partition = FALSE, close_loop = TRUE)
+```
+
+```{r, Figure 3C PD-TOrg pseudotime UMAP}
+PD.TOrg.monocle3 <- order_cells (PD.TOrg.monocle3)
+
+plot_cells (PD.TOrg.monocle3,
+            color_cells_by                = "pseudotime",
+            label_cell_groups             = FALSE,
+            label_leaves                  = FALSE,
+            label_branch_points           = FALSE,
+            graph_label_size              = 1.5,
+            cell_size                     = 3,
+            trajectory_graph_color        = "black",
+            trajectory_graph_segment_size = 1.25)
+```
+
+### hTSC-TOrg (in vitro) trophoblasts
+
+```{r, Figure 3C hTSC-TOrg analysis}
+hTSC.TOrg.monocle3 <- as.cell_data_set      (invitro, assay = "RNA")
+hTSC.TOrg.monocle3 <- estimate_size_factors (hTSC.TOrg.monocle3)
+hTSC.TOrg.monocle3 <- cluster_cells         (hTSC.TOrg.monocle3,
+                                             reduction_method = c("UMAP"),
+                                             cluster_method   = "leiden",
+                                             partition_qval   = 0.05,
+                                             resolution       = 0.0015)
+
+p1  <- plot_cells (hTSC.TOrg.monocle3,                               show_trajectory_graph = FALSE)
+p2  <- plot_cells (hTSC.TOrg.monocle3, color_cells_by = "partition", show_trajectory_graph = FALSE)
+wrap_plots        (p1, p2)
+```
+
+```{r, Figure 3C hTSC-TOrg analysis}
+hTSC.TOrg.monocle3 <- learn_graph (hTSC.TOrg.monocle3, use_partition = FALSE, close_loop = TRUE)
+```
+
+```{r, Figure 3C hTSC-TOrg pseudotime UMAP}
+hTSC.TOrg.monocle3 <- order_cells (hTSC.TOrg.monocle3)
+
+plot_cells (hTSC.TOrg.monocle3,
+            color_cells_by                = "pseudotime",
+            label_cell_groups             = FALSE,
+            label_leaves                  = FALSE,
+            label_branch_points           = FALSE,
+            graph_label_size              = 1.5,
+            cell_size                     = 3,
+            trajectory_graph_color        = "black",
+            trajectory_graph_segment_size = 1.25)
+```
+
+## Model-speicfic origin comparison
+
+```{r, Labelling the model-specific origins}
+MPI_ORIGIN <- AddMetaData (MPI_ORIGIN, metadata = "MPI", col.name = "ORIGIN")
+MPI_ORIGIN[[]]
+
+PD.TOrg_ORIGIN <- AddMetaData (PD.TOrg_ORIGIN, metadata = "PD.TOrg", col.name = "ORIGIN")
+PD.TOrg_ORIGIN[[]]
+
+hTSC.TOrg_ORIGIN <- AddMetaData (hTSC.TOrg_ORIGIN, metadata = "hTSC.TOrg", col.name = "ORIGIN")
+hTSC.TOrg_ORIGIN[[]]
+```
+
+```{r, Merging all model-specific origins}
+ORIGIN <- merge(x            = MPI_ORIGIN,
+                y            = c(PD.TOrg_ORIGIN, hTSC.TOrg_ORIGIN),
+                add.cell.ids = NULL,
+                merge.data   = TRUE)
+ORIGIN[[]]
+```
+
+# PCC Comparison
+
+```{r, Figure 3D analysis}
+Idents (ORIGIN) <- ORIGIN@meta.data$ORIGIN
+table (Idents (ORIGIN))
+
+av.exp    <- AverageExpression (ORIGIN)$RNA
+cor.exp   <- as.data.frame     (cor (av.exp))
+cor.exp$x <- rownames          (cor.exp)
+cor.df    <- tidyr::gather     (data = cor.exp, y, correlation, c('MPI', 'PD.TOrg', 'hTSC.TOrg'))
+cor.df
+```
+
+```{r, Figure 3D}
+ggplot               (cor.df, aes (x, y, fill = correlation)) +
+geom_tile            () +
+scale_fill_gradientn (limits = c(0,1), colours = colorRampPalette (rev (brewer.pal (n = 7, name = "RdYlBu"))) (100))
+```
+
+# Differential Expression
+
+```{r, Merging specific model-specific origins}
+ORIGIN2 <- merge(x           = MPI_ORIGIN,
+                y            = PD.TOrg_ORIGIN,
+                add.cell.ids = NULL,
+                merge.data   = TRUE)
+ORIGIN2[[]]
+
+ORIGIN3 <- merge(x            = MPI_ORIGIN,
+                 y            = hTSC.TOrg_ORIGIN,
+                 add.cell.ids = NULL,
+                 merge.data   = TRUE)
+ORIGIN3[[]]
+```
+
+```{r, Figure 3E MPI vs PD-TOrg origin analysis}
+DefaultAssay (ORIGIN2) <- "RNA"
+
+Idents (ORIGIN2) <- ORIGIN@meta.data$ORIGIN2
+ORIGIN.response  <- FindMarkers (ORIGIN,
+                                 ident.1            = "MPI",
+                                 ident.2            = "PD.TOrg",
+                                 test.use           = "MAST",
+                                 logfc.threshold    = -Inf,
+                                 min.pct            = -Inf,
+                                 min.diff.pct       = -Inf,
+                                 verbose            = FALSE)
+                    head        (ORIGIN.response, n = 50)
+```
+
+```{r, Table S6A}
+write.xlsx (ORIGIN.response, file = "MPI_vs_PD-TOrg_originDGE.xlsx")
+```
+
+```{r, Figure 3E MPI vs PD-TOrg origin volcano plot}
+EnhancedVolcano (ORIGIN.response,
+                 lab             = rownames (ORIGIN.response),
+                 x               = "avg_log2FC",
+                 y               = "p_val_adj",
+                 FCcutoff        = 1.00,
+                 pCutoff         = 10e-50,
+                 pointSize       = 4.0,
+                 col             = c('grey', 'grey', 'grey', 'red'),
+                 colAlpha        = 1,
+                 xlim            = c(min (ORIGIN2.response[["avg_log2FC"]], na.rm = TRUE) - 2.5,
+                                     max (ORIGIN2.response[["avg_log2FC"]], na.rm = TRUE) + 1.5),
+                 gridlines.major = FALSE,
+                 selectLab       = c('CGA', 'NEAT1', 'BCAM', 'PAGE4', 'EFEMP1', 'PEG10', 'EGR1'),
+                 drawConnectors  = TRUE, 
+                 gridlines.minor = FALSE) + NoLegend () + ggtitle (NULL)
+```
+
+```{r, Figure 3E MPI vs hTSC-TOrg origin analysis}
+DefaultAssay (ORIGIN2) <- "RNA"
+
+Idents (ORIGIN2) <- ORIGIN2@meta.data$ORIGIN
+ORIGIN2.response <- FindMarkers (ORIGIN2,
+                                 ident.1            = "MPI",
+                                 ident.2            = "hTSC.TOrg",
+                                 test.use           = "MAST",
+                                 logfc.threshold    = -Inf,
+                                 min.pct            = -Inf,
+                                 min.diff.pct       = -Inf,
+                                 verbose            = FALSE)
+                    head        (ORIGIN2.response, n = 50)
+```
+
+```{r, Table S6B}
+write.xlsx (ORIGIN2.response, file = "MPI_vs_hTSC-TOrg_originDGE.xlsx")
+```
+
+```{r, Figure 3E MPI vs hTSC-TOrg origin volcano plot}
+EnhancedVolcano (ORIGIN2.response,
+                 lab             = rownames (ORIGIN2.response),
+                 x               = "avg_log2FC",
+                 y               = "p_val_adj",
+                 FCcutoff        = 1.00,
+                 pCutoff         = 10e-50,
+                 pointSize       = 4.0,
+                 col             = c('grey', 'grey', 'grey', 'red'),
+                 colAlpha        = 1,
+                 xlim            = c(min (ORIGIN2.response[["avg_log2FC"]], na.rm = TRUE) - 2.5,
+                                     max (ORIGIN2.response[["avg_log2FC"]], na.rm = TRUE) + 1.5),
+                 gridlines.major = FALSE,
+                 selectLab       = c('FTL', 'CGA', 'CD9', 'NEAT1', 'HLA-G', 'ITGA2', 'BCAM', 'EFEMP1', 'PEG10', 'EGR1', 'EPCAM', 'FOXO4'),
+                 drawConnectors  = TRUE, 
+                 gridlines.minor = FALSE) + NoLegend () + ggtitle (NULL)
+```

@@ -1,0 +1,200 @@
+---
+title: "MODEL_COMPARISON_FIGURE2"
+author: "Matthew J Shannon"
+date: "08/11/2022"
+output: html_document
+---
+
+# Load in all dependencies
+
+```{r, include = FALSE}
+devtools::install_github ('chris-mcginnis-ucsf/DoubletFinder')
+devtools::install_github ('satijalab/seurat-wrappers')
+remotes::install_github  ("mojaveazure/seurat-disk")
+devtools::install_github ("velocyto-team/velocyto.R")
+devtools::install_github ('msraredon/Connectome', ref = 'master')
+BiocManager::install     ("pcaMethods")
+BiocManager::install     ('MAST')
+BiocManager::install     ('org.Hs.eg.db')
+BiocManager::install     (version = "3.12")
+BiocManager::install     ('Seurat')
+BiocManager::install     ('readxl')
+BiocManager::install     ('modes')
+BiocManager::install     ('pheatmap')
+BiocManager::install     ('limma')
+BiocManager::install     ('clustree')
+BiocManager::install     ('clusterProfiler')
+BiocManager::install     ('EnhancedVolcano')
+install.packages         ('fields')
+install.packages         ('plotly')
+install.packages         ("VennDiagram")
+library                  (Seurat)
+library                  (readr)
+library                  (tidyverse)
+library                  (Matrix)
+library                  (dplyr)
+library                  (ggplot2)
+library                  (cowplot)
+library                  (tibble)
+library                  (readxl)
+library                  (sctransform)
+library                  (fields)
+library                  (KernSmooth)
+library                  (ROCR)
+library                  (parallel)
+library                  (reshape2)
+library                  (pheatmap)
+library                  (DoubletFinder)
+library                  (limma)
+library                  (SeuratWrappers)
+library                  (SeuratDisk)
+library                  (plotly)
+library                  (clustree)
+library                  (velocyto.R)
+library                  (MAST)
+library                  (EnhancedVolcano)
+library                  (clusterProfiler)
+library                  (AnnotationDbi)
+library                  (org.Hs.eg.db)
+library                  (VennDiagram)
+library                  (RColorBrewer)
+library                  (Connectome)
+```
+
+# Load the model-specific trophoblast Seurat objects
+
+```{r}
+# MPI (in vivo) trophoblast object
+load         (file = "~/Desktop/MPI.Rdata")
+DefaultAssay (MPI) <- "integrated"
+
+# PD-TOrg (in vitro) trophoblast object
+load         (file = "~/Desktop/PD_TOrg.Rdata")
+DefaultAssay (PD.TOrg) <- "integrated"
+
+# hTSC-TOrg (in vitro) trophoblast object
+load         (file = "~/Desktop/hTSC_TOrg.Rdata")
+DefaultAssay (hTSC.TOrg) <- "integrated"
+```
+
+# Figure 2
+
+## Model-specific UMAPs
+
+```{r, Figure 2A MPI (in vivo) UMAP}
+UMAPPlot (MPI,
+          label   = TRUE,
+          pt.size = 3,
+          cols    = c('CTB'  = 'darkorange1',
+                      'cCTB' = 'red3',
+                      'EVT'  = 'forestgreen',
+                      'SCTp' = 'dodgerblue4')) + NoLegend ()
+```
+
+```{r, Figure 2A PD-TOrg (in vitro) UMAP}
+UMAPPlot (PD.TOrg,
+          label   = TRUE,
+          pt.size = 3,
+          cols    = c('CTB'  = 'darkorange1',
+                      'TSC'  = '#A65628',
+                      'cCTB' = 'red3',
+                      'EVT'  = 'forestgreen',
+                      'SCTp' = 'dodgerblue4')) + NoLegend ()
+```
+
+```{r, Figure 2A hTSC-TOrg (in vitro) UMAP}
+UMAPPlot (hTSC.TOrg,
+          label   = TRUE,
+          pt.size = 3,
+          cols    = c('CTB'  = 'darkorange1',
+                      'TSC'  = '#A65628',
+                      'cCTB' = 'red3',
+                      'EVT'  = 'forestgreen',
+                      'SCTp' = 'dodgerblue4')) + NoLegend ()
+```
+
+## Ligand-Receptor (connectome) analysis
+
+### MPI (in vivo) connectome analysis
+
+```{r, Figure 2B MPI analysis}
+DefaultAssay (MPI) <- "RNA"
+
+connectome.genes <- union            (Connectome::ncomms8866_human$Ligand.ApprovedSymbol, Connectome::ncomms8866_human$Receptor.ApprovedSymbol)
+genes1           <- connectome.genes [connectome.genes %in% rownames (MPI)]
+MPI              <- ScaleData        (MPI, features = genes1)
+MPI.con          <- CreateConnectome (MPI, species = 'human', min.cells.per.ident = 10, p.values = F, calculate.DOR = F)
+```
+
+```{r, Figure 2B MPI}
+Centrality (MPI.con,
+            modes.include    = c("ADAM",
+                                 "BMP",
+                                 "EGF",
+                                 "Laminins",
+                                 "Matrix (assorted)",
+                                 "Matrix glycoproteins",
+                                 "MMP",
+                                 "NOTCH",
+                                 "VEGF",
+                                 "WNT"),
+            min.z            = NULL,
+            weight.attribute = 'weight_sc',
+            group.by         = 'mode')
+```
+
+### PD-TOrg (in vitro) connectome analysis
+
+```{r, Figure 2B PD-TOrg analysis}
+DefaultAssay (PD.TOrg) <- "RNA"
+
+connectome.genes <- union            (Connectome::ncomms8866_human$Ligand.ApprovedSymbol, Connectome::ncomms8866_human$Receptor.ApprovedSymbol)
+genes2           <- connectome.genes [connectome.genes %in% rownames (PD.TOrg)]
+PD.TOrg          <- ScaleData        (PD.TOrg, features = genes2)
+PD.TOrg.con      <- CreateConnectome (PD.TOrg, species = 'human', min.cells.per.ident = 10, p.values = F, calculate.DOR = F)
+```
+
+```{r, Figure 2B PD-TOrg}
+Centrality (PD.TOrg.con,
+            modes.include    = c("ADAM",
+                                 "BMP",
+                                 "EGF",
+                                 "Laminins",
+                                 "Matrix (assorted)",
+                                 "Matrix glycoproteins",
+                                 "MMP",
+                                 "NOTCH",
+                                 "VEGF",
+                                 "WNT"),
+            min.z            = NULL,
+            weight.attribute = 'weight_sc',
+            group.by         = 'mode')
+```
+
+### hTSC-TOrg (in vitro) connectome analysis
+
+```{r, Figure 2B hTSC-TOrg analysis}
+DefaultAssay (hTSC.TOrg) <- "RNA"
+
+connectome.genes <- union            (Connectome::ncomms8866_human$Ligand.ApprovedSymbol, Connectome::ncomms8866_human$Receptor.ApprovedSymbol)
+genes3           <- connectome.genes [connectome.genes %in% rownames (hTSC.TOrg)]
+hTSC.TOrg        <- ScaleData        (hTSC.TOrg, features = genes3)
+hTSC.TOrg.con    <- CreateConnectome (hTSC.TOrg, species = 'human', min.cells.per.ident = 10, p.values = F, calculate.DOR = F)
+```
+
+```{r, Figure 2B hTSC-TOrg}
+Centrality (hTSC.TOrg.con,
+            modes.include    = c("ADAM",
+                                 "BMP",
+                                 "EGF",
+                                 "Laminins",
+                                 "Matrix (assorted)",
+                                 "Matrix glycoproteins",
+                                 "MMP",
+                                 "NOTCH",
+                                 "VEGF",
+                                 "WNT"),
+            min.z            = NULL,
+            weight.attribute = 'weight_sc',
+            group.by         = 'mode')
+```
