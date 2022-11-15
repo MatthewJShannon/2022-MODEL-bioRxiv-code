@@ -738,7 +738,7 @@ DotPlot (CTBs,
 ```
 
 ```{r, Figure 4C FOXO4 UMAP}
-FeaturePlot (Trophoblasts, features = c("FOXO4"), label = FALSE, pt.size = 5, min.cutoff = 0, order = TRUE, cols = c("grey", "red")) + NoLegend ()
+FeaturePlot (Trophoblasts, features = c("FOXO4"), label = FALSE, pt.size = 3, min.cutoff = 0, order = TRUE, cols = c("grey", "red")) + NoLegend ()
 ```
 
 ```{r, Figure 4F driver gene dot plot}
@@ -790,9 +790,9 @@ DotPlot (CTB.TSC,
 ```
 
 ```{r, Figure 4G UMAPs}
-FeaturePlot (Trophoblasts, features = c("TEAD4"), label = FALSE, pt.size = 5, min.cutoff = 0, order = TRUE, cols = c("grey", "red")) + NoLegend ()
-FeaturePlot (Trophoblasts, features = c("SOX15"), label = FALSE, pt.size = 5, min.cutoff = 0, order = TRUE, cols = c("grey", "red")) + NoLegend ()
-FeaturePlot (Trophoblasts, features = c("SOX13"), label = FALSE, pt.size = 5, min.cutoff = 0, order = TRUE, cols = c("grey", "red")) + NoLegend ()
+FeaturePlot (Trophoblasts, features = c("TEAD4"), label = FALSE, pt.size = 3, min.cutoff = 0, order = TRUE, cols = c("grey", "red")) + NoLegend ()
+FeaturePlot (Trophoblasts, features = c("SOX15"), label = FALSE, pt.size = 3, min.cutoff = 0, order = TRUE, cols = c("grey", "red")) + NoLegend ()
+FeaturePlot (Trophoblasts, features = c("SOX13"), label = FALSE, pt.size = 3, min.cutoff = 0, order = TRUE, cols = c("grey", "red")) + NoLegend ()
 ```
 
 # Supplemental Figure 3
