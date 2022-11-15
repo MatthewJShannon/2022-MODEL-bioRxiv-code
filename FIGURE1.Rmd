@@ -236,7 +236,7 @@ rm (hTSC.TOrg.averages)
 venn.diagram (x = list (MPI.genes,
                         PD.TOrg.genes,
                         hTSC.TOrg.genes),
-              category.names  = c    ("MPI", "PD-TOrg", "hTSC-TOrg"),
+              category.names  = c ("MPI", "PD-TOrg", "hTSC-TOrg"),
               filename        = 'Trophoblast_Model_Venn.png',
               output          = TRUE,
               imagetype       = "png",
