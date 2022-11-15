@@ -825,7 +825,7 @@ rm (hTSC.TOrg_CTBs.averages)
 venn.diagram (x = list (MPI_CTBsgenes,
                         PD.TOrg_CTBsgenes,
                         hTSC.TOrg_CTBsgenes),
-              category.names  = c ("MPI", "PD-TOrg", "hTSC-TOrg"),
+              category.names  = c("MPI", "PD-TOrg", "hTSC-TOrg"),
               filename        = 'Model_CTB_Venn.svg',
               output          = TRUE,
               imagetype       = "png",
