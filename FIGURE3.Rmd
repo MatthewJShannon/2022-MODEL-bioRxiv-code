@@ -252,17 +252,17 @@ rm (MPI_semisup_clustering_genes)
 
 ```{r, Figure 3A MPI (in vivo) analysis}
 MPI.monocle <- reduceDimension (MPI.monocle,
-                                   max_components = 2,
-                                   method         = 'DDRTree',
-                                   norm_method    = 'none',
-                                   pseudo_expr    = 0)
+                                max_components = 2,
+                                method         = 'DDRTree',
+                                norm_method    = 'none',
+                                pseudo_expr    = 0)
 MPI.monocle <- orderCells      (MPI.monocle)
 MPI.monocle <- orderCells      (MPI.monocle, root_state = 3)
 ```
 
 ```{r, Figure 3A MPI (in vivo) Monocle2 pseudotime trajectory}
 plot_cell_trajectory (MPI.monocle,
-                      color_by           =   "seurat_clusters",
+                      color_by           = "seurat_clusters",
                       cell_size          = 3,
                       show_branch_points = FALSE) +
 scale_color_manual   (values             = c("#F8766D",
@@ -372,17 +372,17 @@ rm (PD.TOrg_semisup_clustering_genes)
 
 ```{r, Figure 3A PD-TOrg (in vitro) analysis}
 PD.TOrg.monocle <- reduceDimension (PD.TOrg.monocle,
-                                   max_components = 2,
-                                   method         = 'DDRTree',
-                                   norm_method    = 'none',
-                                   pseudo_expr    = 0)
-PD.TOrg.monocle <- orderCells     (PD.TOrg.monocle)
-PD.TOrg.monocle <- orderCells     (PD.TOrg.monocle, root_state = 3)
+                                    max_components = 2,
+                                    method         = 'DDRTree',
+                                    norm_method    = 'none',
+                                    pseudo_expr    = 0)
+PD.TOrg.monocle <- orderCells      (PD.TOrg.monocle)
+PD.TOrg.monocle <- orderCells      (PD.TOrg.monocle, root_state = 3)
 ```
 
 ```{r, Figure 3A PD-TOrg (in vitro) Monocle2 pseudotime trajectory}
 plot_cell_trajectory (PD.TOrg.monocle,
-                      color_by           =   "seurat_clusters",
+                      color_by           = "seurat_clusters",
                       cell_size          = 3,
                       show_branch_points = FALSE) +
 scale_color_manual   (values             = c("#F8766D",
@@ -498,7 +498,7 @@ hTSC.TOrg.monocle <- orderCells      (hTSC.TOrg.monocle, root_state = 3)
 
 ```{r, Figure 3A hTSC-TOrg (in vitro) Monocle2 pseudotime trajectory}
 plot_cell_trajectory (hTSC.TOrg.monocle,
-                      color_by           =   "seurat_clusters",
+                      color_by           = "seurat_clusters",
                       cell_size          = 3,
                       show_branch_points = FALSE) +
 scale_color_manual   (values             = c("#7CAE00",
@@ -587,7 +587,7 @@ plot_cells (MPI.monocle3,
 ### PD-TOrg (in vitro) trophoblasts
 
 ```{r, Figure 3C PD-TOrg analysis}
-PD.TOrg.monocle3 <- as.cell_data_set      (exvivo, assay = "RNA")
+PD.TOrg.monocle3 <- as.cell_data_set      (PD.TOrg, assay = "RNA")
 PD.TOrg.monocle3 <- estimate_size_factors (PD.TOrg.monocle3)
 PD.TOrg.monocle3 <- cluster_cells         (PD.TOrg.monocle3,
                                            reduction_method = c("UMAP"),
@@ -621,7 +621,7 @@ plot_cells (PD.TOrg.monocle3,
 ### hTSC-TOrg (in vitro) trophoblasts
 
 ```{r, Figure 3C hTSC-TOrg analysis}
-hTSC.TOrg.monocle3 <- as.cell_data_set      (invitro, assay = "RNA")
+hTSC.TOrg.monocle3 <- as.cell_data_set      (hTSC.TOrg, assay = "RNA")
 hTSC.TOrg.monocle3 <- estimate_size_factors (hTSC.TOrg.monocle3)
 hTSC.TOrg.monocle3 <- cluster_cells         (hTSC.TOrg.monocle3,
                                              reduction_method = c("UMAP"),
@@ -711,25 +711,25 @@ ORIGIN3[[]]
 ```{r, Figure 3E MPI vs PD-TOrg origin analysis}
 DefaultAssay (ORIGIN2) <- "RNA"
 
-Idents (ORIGIN2) <- ORIGIN@meta.data$ORIGIN2
-ORIGIN.response  <- FindMarkers (ORIGIN,
-                                 ident.1            = "MPI",
-                                 ident.2            = "PD.TOrg",
-                                 test.use           = "MAST",
-                                 logfc.threshold    = -Inf,
-                                 min.pct            = -Inf,
-                                 min.diff.pct       = -Inf,
-                                 verbose            = FALSE)
-                    head        (ORIGIN.response, n = 50)
+Idents (ORIGIN2) <- ORIGIN2@meta.data$ORIGIN2
+ORIGIN2.response  <- FindMarkers (ORIGIN2,
+                                  ident.1            = "MPI",
+                                  ident.2            = "PD.TOrg",
+                                  test.use           = "MAST",
+                                  logfc.threshold    = -Inf,
+                                  min.pct            = -Inf,
+                                  min.diff.pct       = -Inf,
+                                  verbose            = FALSE)
+                    head         (ORIGIN2.response, n = 50)
 ```
 
 ```{r, Table S6A}
-write.xlsx (ORIGIN.response, file = "MPI_vs_PD-TOrg_originDGE.xlsx")
+write.xlsx (ORIGIN2.response, file = "MPI_vs_PD-TOrg_originDGE.xlsx")
 ```
 
 ```{r, Figure 3E MPI vs PD-TOrg origin volcano plot}
-EnhancedVolcano (ORIGIN.response,
-                 lab             = rownames (ORIGIN.response),
+EnhancedVolcano (ORIGIN2.response,
+                 lab             = rownames (ORIGIN2.response),
                  x               = "avg_log2FC",
                  y               = "p_val_adj",
                  FCcutoff        = 1.00,
@@ -746,10 +746,10 @@ EnhancedVolcano (ORIGIN.response,
 ```
 
 ```{r, Figure 3E MPI vs hTSC-TOrg origin analysis}
-DefaultAssay (ORIGIN2) <- "RNA"
+DefaultAssay (ORIGIN3) <- "RNA"
 
-Idents (ORIGIN2) <- ORIGIN2@meta.data$ORIGIN
-ORIGIN2.response <- FindMarkers (ORIGIN2,
+Idents (ORIGIN3) <- ORIGIN3@meta.data$ORIGIN
+ORIGIN3.response <- FindMarkers (ORIGIN3,
                                  ident.1            = "MPI",
                                  ident.2            = "hTSC.TOrg",
                                  test.use           = "MAST",
@@ -757,16 +757,16 @@ ORIGIN2.response <- FindMarkers (ORIGIN2,
                                  min.pct            = -Inf,
                                  min.diff.pct       = -Inf,
                                  verbose            = FALSE)
-                    head        (ORIGIN2.response, n = 50)
+                    head        (ORIGIN3.response, n = 50)
 ```
 
 ```{r, Table S6B}
-write.xlsx (ORIGIN2.response, file = "MPI_vs_hTSC-TOrg_originDGE.xlsx")
+write.xlsx (ORIGIN3.response, file = "MPI_vs_hTSC-TOrg_originDGE.xlsx")
 ```
 
 ```{r, Figure 3E MPI vs hTSC-TOrg origin volcano plot}
-EnhancedVolcano (ORIGIN2.response,
-                 lab             = rownames (ORIGIN2.response),
+EnhancedVolcano (ORIGIN3.response,
+                 lab             = rownames (ORIGIN3.response),
                  x               = "avg_log2FC",
                  y               = "p_val_adj",
                  FCcutoff        = 1.00,
@@ -774,8 +774,8 @@ EnhancedVolcano (ORIGIN2.response,
                  pointSize       = 4.0,
                  col             = c('grey', 'grey', 'grey', 'red'),
                  colAlpha        = 1,
-                 xlim            = c(min (ORIGIN2.response[["avg_log2FC"]], na.rm = TRUE) - 2.5,
-                                     max (ORIGIN2.response[["avg_log2FC"]], na.rm = TRUE) + 1.5),
+                 xlim            = c(min (ORIGIN3.response[["avg_log2FC"]], na.rm = TRUE) - 2.5,
+                                     max (ORIGIN3.response[["avg_log2FC"]], na.rm = TRUE) + 1.5),
                  gridlines.major = FALSE,
                  selectLab       = c('FTL', 'CGA', 'CD9', 'NEAT1', 'HLA-G', 'ITGA2', 'BCAM', 'EFEMP1', 'PEG10', 'EGR1', 'EPCAM', 'FOXO4'),
                  drawConnectors  = TRUE, 
