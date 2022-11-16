@@ -200,9 +200,9 @@ MPI_Extravillous
 
 ```{r, Figure 5E, Maternal-Placental Interface (in vivo) extravillous differentiation branch cluster labelling}
           new.cluster.ids <- c("EVT",          # Extravillous trophoblast state
-                               "cCTB 2",       # Column cytotrophoblast   state 2
-                               "ITGA2+ cCTB",  # ITGA2+ column cytotrophoblast   state 1
-                               "cCTB 1")       # Column cytotrophoblast   state 1
+                               "cCTB 2",       # Column cytotrophoblast state 2
+                               "ITGA2+ cCTB",  # ITGA2+ column cytotrophoblast state 1
+                               "cCTB 1")       # Column cytotrophoblast state 1
 
 names (new.cluster.ids)   <- levels       (MPI_Extravillous)
 MPI_Extravillous$celltype <- Idents       (MPI_Extravillous)
@@ -224,8 +224,8 @@ PD.TOrg_Extravillous
 ```
 
 ```{r, Figure 5E, Patient-derived trophoblast organoid (in vitro) extravillous differentiation branch cluster labelling}
-              new.cluster.ids <- c("cCTB 3",  # Column cytotrophoblast   state 3
-                                   "cCTB 1",  # Column cytotrophoblast   state 1
+              new.cluster.ids <- c("cCTB 3",  # Column cytotrophoblast state 3
+                                   "cCTB 1",  # Column cytotrophoblast state 1
                                    "EVT",     # Extravillous trophoblast state
                                    "TSC")     # hTSC-enriched state
 
@@ -251,7 +251,7 @@ hTSC.TOrg_Extravillous
 ```{r, Figure 5E, hTSC-derived trophoblast organoid (in vitro) extravillous differentiation branch cluster labelling}
                 new.cluster.ids <- c("TSC",     # hTSC-enriched state
                                      "EVT",     # Extravillous trophoblast state
-                                     "cCTB 3")  # Column cytotrophoblast   state 3
+                                     "cCTB 3")  # Column cytotrophoblast state 3
 
 names (new.cluster.ids)         <- levels       (hTSC.TOrg_Extravillous)
 hTSC.TOrg_Extravillous$celltype <- Idents       (hTSC.TOrg_Extravillous)
