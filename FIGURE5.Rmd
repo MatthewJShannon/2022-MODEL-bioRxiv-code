@@ -180,7 +180,7 @@ write.xlsx (ITGA2_513,   file = "ITGA2_513_Venn.xlsx")
 ## Extravillous Differentiation Branch Comparison
 
 ```{r, Figure 5E, Integrated (in vivo + in vitro) extravillous differentiation branch subset}
-Extravillous  <- subset (Trophoblasts, idents = c("TSC", "cCTB 1", "cCTB 2", "cCTB 3", "EVT"))
+Extravillous <- subset (Trophoblasts, idents = c("TSC", "cCTB 1", "cCTB 2", "cCTB 3", "EVT"))
 ```
 
 ```{r, Figure 5E, Integrated (in vivo + in vitro) extravillous differentiation branch UMAP}
