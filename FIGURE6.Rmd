@@ -1,0 +1,587 @@
+---
+title: "MODEL_COMPARISON_FIGURE6"
+author: "Matthew J Shannon"
+date: "15/11/2022"
+output: html_document
+---
+
+# Load in all dependencies
+
+```{r, include = FALSE}
+devtools::install_github ('chris-mcginnis-ucsf/DoubletFinder')
+devtools::install_github ('satijalab/seurat-wrappers')
+remotes::install_github  ("mojaveazure/seurat-disk")
+devtools::install_github ("velocyto-team/velocyto.R")
+BiocManager::install     ("pcaMethods")
+BiocManager::install     ('MAST')
+BiocManager::install     ('org.Hs.eg.db')
+BiocManager::install     (version = "3.12")
+BiocManager::install     ('Seurat')
+BiocManager::install     ('readxl')
+BiocManager::install     ('modes')
+BiocManager::install     ('pheatmap')
+BiocManager::install     ('limma')
+BiocManager::install     ('clustree')
+BiocManager::install     ('clusterProfiler')
+BiocManager::install     ('EnhancedVolcano')
+install.packages         ('fields')
+install.packages         ('plotly')
+install.packages         ("VennDiagram")
+library                  (Seurat)
+library                  (readr)
+library                  (tidyverse)
+library                  (Matrix)
+library                  (dplyr)
+library                  (ggplot2)
+library                  (ggpubr)
+library                  (cowplot)
+library                  (tibble)
+library                  (readxl)
+library                  (sctransform)
+library                  (fields)
+library                  (KernSmooth)
+library                  (ROCR)
+library                  (parallel)
+library                  (reshape2)
+library                  (pheatmap)
+library                  (DoubletFinder)
+library                  (limma)
+library                  (SeuratWrappers)
+library                  (SeuratDisk)
+library                  (plotly)
+library                  (clustree)
+library                  (velocyto.R)
+library                  (MAST)
+library                  (EnhancedVolcano)
+library                  (clusterProfiler)
+library                  (AnnotationDbi)
+library                  (org.Hs.eg.db)
+library                  (VennDiagram)
+library                  (RColorBrewer)
+library                  (EnhancedVolcano)
+library                  (xlsx)
+gc                       ()
+sessionInfo              ()
+```
+
+# Load the integrated and model-specific trophoblast Seurat objects
+
+```{r}
+# Integrated (all models) trophoblast object
+load         (file = "~/Desktop/FINAL_Trophoblast_Data.Rdata")
+DefaultAssay (Trophoblasts) <- "integrated"
+
+# MPI (in vivo) trophoblast object
+load         (file = "~/Desktop/MPI.Rdata")
+DefaultAssay (MPI) <- "integrated"
+
+# PD-TOrg (in vitro) trophoblast object
+load         (file = "~/Desktop/PD_TOrg.Rdata")
+DefaultAssay (PD.TOrg) <- "integrated"
+
+# hTSC-TOrg (in vitro) trophoblast object
+load         (file = "~/Desktop/hTSC_TOrg.Rdata")
+DefaultAssay (hTSC.TOrg) <- "integrated"
+```
+
+# Figure 6
+
+## Villous Differentiation Branch Comparison
+
+```{r, Figure 6A, Integrated (in vivo + in vitro) villous differentiation branch subset}
+Villous <- subset (Trophoblasts, idents = c("CTB 1", "CTB 2", "CTB 3", "CTB 4", "SCTp 1", "SCTp 2"))
+```
+
+```{r, Figure 6A, Integrated (in vivo + in vitro) villous differentiation branch UMAP}
+UMAPPlot (Villous, label = TRUE, pt.size = 3) + NoLegend ()
+```
+
+### Maternal-Placental Interface (in vivo) villous differentiation branch
+
+```{r, Figure 6A, Maternal-Placental Interface (in vivo) villous differentiation branch re-clustering}
+MPI_Villous <- subset        (Villous, subset = Model == "MPI")
+MPI_Villous <- FindNeighbors (MPI_Villous)
+MPI_Villous <- FindClusters  (MPI_Villous, resolution = 0.025)
+MPI_Villous <- RunUMAP       (MPI_Villous, reduction  = "pca", dims = 1:30)
+MPI_Villous
+```
+
+```{r, Figure 6A, Maternal-Placental Interface (in vivo) villous differentiation branch cluster labelling}
+        new.cluster.ids <- c("CTB 1",  # Cytotrophoblast   state 1
+                             "CTB 2",  # Cytotrophoblast   state 2
+                             "CTB 4",  # Cytotrophoblast   state 4
+                             "SCTp",   # Syncytiotrophoblast precursor state
+                             "CTB 3")  # Cytotrophoblast   state 3
+
+names (new.cluster.ids) <- levels       (MPI_Villous)
+MPI_Villous$celltype    <- Idents       (MPI_Villous)
+MPI_Villous             <- RenameIdents (MPI_Villous, new.cluster.ids)
+```
+
+```{r, Figure 6A, Maternal-Placental Interface (in vivo) villous differentiation branch UMAP}
+UMAPPlot (MPI_Villous, label = TRUE, pt.size = 3) + NoLegend ()
+```
+
+### Patient-derived trophoblast organoid (in vitro) villous differentiation branch
+
+```{r, Figure 6A, Patient-derived trophoblast organoid (in vitro) villous differentiation branch re-clustering}
+PD.TOrg_Villous <- subset        (Villous, subset = Model == "PD.TOrg")
+PD.TOrg_Villous <- FindNeighbors (PD.TOrg_Villous)
+PD.TOrg_Villous <- FindClusters  (PD.TOrg_Villous, resolution = 0.025)
+PD.TOrg_Villous <- RunUMAP       (PD.TOrg_Villous, reduction  = "pca", dims = 1:30)
+PD.TOrg_Villous
+```
+
+```{r, Figure 6A, Patient-derived trophoblast organoid (in vitro) villous differentiation branch cluster labelling}
+         new.cluster.ids <- c("CTB 1",  # Cytotrophoblast state 1
+                              "CTB 2",  # Cytotrophoblast state 2
+                              "CTB 3",  # Cytotrophoblast state 3
+                              "SCTp")   # Syncytiotrophoblast precursor state
+
+names (new.cluster.ids)  <- levels       (PD.TOrg_Villous)
+PD.TOrg_Villous$celltype <- Idents       (PD.TOrg_Villous)
+PD.TOrg_Villous          <- RenameIdents (PD.TOrg_Villous, new.cluster.ids)
+```
+
+```{r, Figure 6A, Patient-derived trophoblast organoid (in vitro) villous differentiation branch UMAP}
+UMAPPlot (PD.TOrg_Villous, label = TRUE, pt.size = 3) + NoLegend ()
+```
+
+### hTSC-derived trophoblast organoid (in vitro) villous differentiation branch
+
+```{r, Figure 6A, hTSC-derived trophoblast organoid (in vitro) villous differentiation branch re-clustering}
+hTSC.TOrg_Villous <- subset        (Villous, subset = Model == "hTSC.TOrg")
+hTSC.TOrg_Villous <- FindNeighbors (hTSC.TOrg_Villous)
+hTSC.TOrg_Villous <- FindClusters  (hTSC.TOrg_Villous, resolution = 0.050)
+hTSC.TOrg_Villous <- RunUMAP       (hTSC.TOrg_Villous, reduction  = "pca", dims = 1:30)
+hTSC.TOrg_Villous
+```
+
+```{r, Figure 6A, hTSC-derived trophoblast organoid (in vitro) villous differentiation branch cluster labelling}
+           new.cluster.ids <- c("SCTp 1",  # Syncytiotrophoblast precursor state 1
+                                "SCTp 3",  # Syncytiotrophoblast precursor state 3
+                                "CTB",     # Cytotrophoblast state
+                                "SCTp 2")  # Syncytiotrophoblast precursor state 2
+
+names (new.cluster.ids)    <- levels       (hTSC.TOrg_Villous)
+hTSC.TOrg_Villous$celltype <- Idents       (hTSC.TOrg_Villous)
+hTSC.TOrg_Villous          <- RenameIdents (hTSC.TOrg_Villous, new.cluster.ids)
+```
+
+```{r, Figure 6A, hTSC-derived trophoblast organoid (in vitro) villous differentiation branch UMAP}
+UMAPPlot (hTSC.TOrg_Villous, label = TRUE, pt.size = 3) + NoLegend ()
+```
+
+## Villous Differentiation Branch MPI Driver Gene Comparison
+
+```{r, Figure 6B SCTp subset}
+# Integrated trophoblast (in vivo + in vitro) SCTp subset
+SCTps <- subset (Trophoblasts, idents = c("SCTp 1", "SCTp 2"))
+```
+
+```{r, Figure 6B dot plot}
+# Comparing Maternal-Placental Interface scVelo-informed gene driver expression across each trophoblast model
+Idents  (SCTps) <- SCTps$Model
+DotPlot (SCTps,
+         features = c("NCAPG",
+                      "ADCY7",
+                      "RASA1",
+                      "SLC13A4",
+                      "TSC22D2",
+                      "SLC2A3",
+                      "F5",
+                      "CLIP1",
+                      "AMD1",
+                      "OLR1",
+                      "DHRS9",
+                      "BACE2",
+                      "CGA",
+                      "SH3BP5",
+                      "GBP1",
+                      "CYP19A1",
+                      "SLC22A11",
+                      "EFHD1",
+                      "NEURL1",
+                      "GREM2"),
+         assay     = "RNA",
+         cols      = c("lightgrey", "red"),
+         col.min   = 0,
+         col.max   = 1,
+         dot.min   = 0,
+         dot.scale = 15)
+```
+
+## Model-specific villous differentiation branch regulon transcription factor dot plots
+
+```{r, Figure 6C, dot plot (top)}
+# Comparing Maternal-Placental Interface scVelo-informed gene driver expression across each trophoblast model
+DotPlot (SCTps,
+         features = c("HES1",
+                      "PITX1",
+                      "MXD1",
+                      "ETV4",
+                      "TFAP2A",
+                      "TFAP2C",
+                      "NFKB2",
+                      "ZNF165",
+                      "ZNF143",
+                      "MAFF",
+                      "MAFK",
+                      "MAFG",
+                      "GMEB1",
+                      "CREM",
+                      "CEBPA",
+                      "NR2F6"),
+         assay     = "RNA",
+         cols      = c("lightgrey", "red"),
+         col.min   = 0,
+         col.max   = 1,
+         dot.min   = 0,
+         dot.scale = 15)
+```
+
+## State-specific villous differentiation branch regulon transcription factor dot plots
+
+```{r, Figure 6C, dot plot (bottom)}
+# Plotting transcription factors identified in Table S7 across each SCTp state
+Idents  (SCTps) <- SCTps$Seurat_clusters
+DotPlot (SCTps,
+         features = c("HES1",
+                      "PITX1",
+                      "MXD1",
+                      "ETV4",
+                      "TFAP2A",
+                      "TFAP2C",
+                      "NFKB2",
+                      "ZNF165",
+                      "ZNF143",
+                      "MAFF",
+                      "MAFK",
+                      "MAFG",
+                      "GMEB1",
+                      "CREM",
+                      "CEBPA",
+                      "NR2F6"),
+         assay     = "RNA",
+         cols      = c("lightgrey", "red"),
+         col.min   = 0,
+         col.max   = 1,
+         dot.min   = 0,
+         dot.scale = 15)
+```
+
+```{r, Figure 6C, UMAPs}
+FeaturePlot (Trophoblasts, features = c("HES1"),  label = FALSE, pt.size = 3, min.cutoff = 0, order = TRUE, cols = c("grey", "red")) + NoLegend ()
+FeaturePlot (Trophoblasts, features = c("PITX1"), label = FALSE, pt.size = 3, min.cutoff = 0, order = TRUE, cols = c("grey", "red")) + NoLegend ()
+FeaturePlot (Trophoblasts, features = c("MXD1"),  label = FALSE, pt.size = 3, min.cutoff = 0, order = TRUE, cols = c("grey", "red")) + NoLegend ()
+FeaturePlot (Trophoblasts, features = c("MAFF"),  label = FALSE, pt.size = 3, min.cutoff = 0, order = TRUE, cols = c("grey", "red")) + NoLegend ()
+FeaturePlot (Trophoblasts, features = c("MAFK"),  label = FALSE, pt.size = 3, min.cutoff = 0, order = TRUE, cols = c("grey", "red")) + NoLegend ()
+FeaturePlot (Trophoblasts, features = c("MAFG"),  label = FALSE, pt.size = 3, min.cutoff = 0, order = TRUE, cols = c("grey", "red")) + NoLegend ()
+```
+
+## hTSC-derived trophoblast organoid (in vitro) CTBs, SCTp, and TSCs
+
+```{r, Figure 6D Alternate hTSC-derived trophoblast organoid villous differentiation branch subset}
+          ALT_Villous <- subset (Trophoblasts, idents = c("CTB 1", "CTB 2", "CTB 3", "CTB 4", "SCTp 1", "SCTp 2", "TSC"))
+hTSC.TOrg_ALT_Villous <- subset (ALT_Villous, subset = Model == "hTSC.TOrg")
+hTSC.TOrg_ALT_Villous
+```
+
+```{r, Figure 6D, Alternate hTSC-derived trophoblast organoid (in vitro) villous differentiation branch UMAP}
+UMAPPlot (hTSC.TOrg_ALT_Villous, label = TRUE, pt.size = 3) + NoLegend ()
+```
+
+```{r, Figure 6D, Alternate hTSC-derived trophoblast organoid (in vitro) villous differentiation branch re-clustering}
+hTSC.TOrg_ALT_Villous <- FindNeighbors (hTSC.TOrg_ALT_Villous)
+hTSC.TOrg_ALT_Villous <- FindClusters  (hTSC.TOrg_ALT_Villous, resolution = 0.150)
+hTSC.TOrg_ALT_Villous <- RunUMAP       (hTSC.TOrg_ALT_Villous, reduction  = "pca", dims = 1:30)
+```
+
+```{r, Figure 6D, Alternate hTSC-derived trophoblast organoid (in vitro) villous differentiation branch cluster labelling}
+# Label all trophoblast clusters by cell type
+               new.cluster.ids <- c("TSC",   # hTSC-enriched state
+                                    "SCTp",  # Syncytiotrophoblast precursor state
+                                    "CTB")   # Cytotrophoblast state
+
+names (new.cluster.ids)        <- levels       (hTSC.TOrg_ALT_Villous)
+hTSC.TOrg_ALT_Villous$celltype <- Idents       (hTSC.TOrg_ALT_Villous)
+hTSC.TOrg_ALT_Villous          <- RenameIdents (hTSC.TOrg_ALT_Villous, new.cluster.ids)
+```
+
+```{r, Figure 6D, Alternate hTSC-derived trophoblast organoid (in vitro) villous differentiation branch re-clustered UMAP}
+UMAPPlot (hTSC.TOrg_ALT_Villous, label = TRUE, pt.size = 3) + NoLegend ()
+```
+
+```{r, Figure 6G dot plot}
+# Comparing Alternative villous differentiation branch scVelo-informed gene driver expression across each state
+DotPlot (hTSC.TOrg_ALT_Villous,
+         features = c("C12orf75",
+                      "LAMA5",
+                      "AVPI1",
+                      "HSPG2",
+                      "MAFF",
+                      "TIMP3",
+                      "APOL6",
+                      "HK2",
+                      "PITX1",
+                      "VGLL3",
+                      "MXD1",
+                      "MAN1A2",
+                      "INTS2",
+                      "RHOBTB1",
+                      "KYNU",
+                      "TMSB4X",
+                      "TNFRSF1B",
+                      "MTMR10",
+                      "TMSB10",
+                      "ATF3"),
+         assay     = "RNA",
+         cols      = c("lightgrey", "red"),
+         col.min   = 0,
+         col.max   = 1,
+         dot.min   = 0,
+         dot.scale = 15)
+```
+
+# Supplemental Figure 6
+
+## Model-specific SCTp comparisons
+
+```{r, Supplemental figure 6A barplot}
+ggplot             (SCTps@meta.data, aes (x = c(SCTps$Model), fill = SCTps$seurat_clusters)) +
+geom_bar           (position     = "stack") +
+theme_classic2     () +
+theme              (text         = element_text (size  = 35)) +
+theme              (axis.text    = element_text (size  = 35)) +
+theme              (axis.title.x = element_text (face  = "bold")) +
+theme              (axis.title.y = element_text (face  = "bold")) +
+theme              (legend.text  = element_text (size  = 15)) +
+theme              (axis.text.y  = element_text (angle = 90)) +
+theme              (axis.text.y  = element_text (hjust = 0.5)) +
+theme              (axis.text.x  = element_text(colour = "black")) +
+theme              (axis.text.y  = element_text(colour = "black")) +
+xlab               ("Trophoblast Model") +
+ylab               ("Cell Proportion")
+```
+
+### SCTp Venn-diagram
+
+```{r, Supplemental figure 6B model-specific subsets}
+# Maternal-Placental Interface (in vivo) SCTp subset
+MPI_SCTp <- subset (SCTps, subset = Model =="MPI")
+MPI_SCTp
+
+# Patient-derived trophoblast organoid (in vitro) SCTp subset
+PD.TOrg_SCTp <- subset (SCTps, subset = Model =="PD.TOrg")
+PD.TOrg_SCTp
+
+# hTSC-derived trophoblast organoid (in vitro) SCTp subset
+hTSC.TOrg_SCTp <- subset (SCTps, subset = Model =="hTSC.TOrg")
+hTSC.TOrg_SCTp
+```
+
+```{r, Supplemental figure 6B analysis}
+DefaultAssay (MPI_SCTp)       <- "RNA"
+DefaultAssay (PD.TOrg_SCTp)   <- "RNA"
+DefaultAssay (hTSC.TOrg_SCTp) <- "RNA"
+
+            MPI_SCTp.averages <- AverageExpression (MPI_SCTp,       group.by = "nCount_RNA", return.seurat = FALSE)
+        PD.TOrg_SCTp.averages <- AverageExpression (PD.TOrg_SCTp,   group.by = "nCount_RNA", return.seurat = FALSE)
+      hTSC.TOrg_SCTp.averages <- AverageExpression (hTSC.TOrg_SCTp, group.by = "nCount_RNA", return.seurat = FALSE)
+
+DefaultAssay (MPI_SCTp)       <- "integrated"
+DefaultAssay (PD.TOrg_SCTp)   <- "integrated"
+DefaultAssay (hTSC.TOrg_SCTp) <- "integrated"
+
+MPI_SCTpgenes       <- rownames (MPI_SCTp.averages$RNA       [rowSums (MPI_SCTp.averages$RNA       []) > 0, ])
+PD.TOrg_SCTpgenes   <- rownames (PD.TOrg_SCTp.averages$RNA   [rowSums (PD.TOrg_SCTp.averages$RNA   []) > 0, ])
+hTSC.TOrg_SCTpgenes <- rownames (hTSC.TOrg_SCTp.averages$RNA [rowSums (hTSC.TOrg_SCTp.averages$RNA []) > 0, ])
+
+rm (MPI_SCTp.averages)
+rm (PD.TOrg_SCTp.averages)
+rm (hTSC.TOrg_SCTp.averages)
+```
+
+```{r, Supplemental figure 6B}
+venn.diagram (x = list (MPI_SCTpgenes,
+                        PD.TOrg_SCTpgenes,
+                        hTSC.TOrg_SCTpgenes),
+              category.names  = c("MPI", "PD-TOrg", "hTSC-TOrg"),
+              filename        = 'Model_SCTp_Venn.svg',
+              output          = TRUE,
+              imagetype       = "png",
+              scaled          = FALSE,
+              label.col       = "black",
+              col             = "black",
+              fontfamily      = "sans",
+              cat.default.pos = "text",
+              margin          = 0.05)
+```
+
+```{r, Table S4E}
+Venn_SCT <- get.venn.partitions (x = list (MPI_SCTpgenes,
+                                           PD.TOrg_SCTpgenes,
+                                           hTSC.TOrg_SCTpgenes),
+                                 force.unique  = TRUE,
+                                 keep.elements = TRUE,
+                                 hierarchical  = FALSE)
+Venn_SCT
+Venn_SCT$..values..
+
+SCT_14685 <- Venn_SCT$..values..$`1`
+SCT_1160  <- Venn_SCT$..values..$`2`
+SCT_2106  <- Venn_SCT$..values..$`3`
+SCT_3459  <- Venn_SCT$..values..$`4`
+SCT_102   <- Venn_SCT$..values..$`5`
+SCT_176   <- Venn_SCT$..values..$`6`
+SCT_722   <- Venn_SCT$..values..$`7`
+
+write.xlsx (SCT_14685, file = "SCT_14685_Venn.xlsx")
+write.xlsx (SCT_1160,  file = "SCT_1160_Venn.xlsx")
+write.xlsx (SCT_2106,  file = "SCT_2106_Venn.xlsx")
+write.xlsx (SCT_3459,  file = "SCT_3459_Venn.xlsx")
+write.xlsx (SCT_102,   file = "SCT_102_Venn.xlsx")
+write.xlsx (SCT_176,   file = "SCT_176_Venn.xlsx")
+write.xlsx (SCT_722,   file = "SCT_722_Venn.xlsx")
+```
+
+### SCTp gene expression comparison
+
+```{r, Supplemental figure 6C Dot plot}
+DotPlot (SCTp,
+         features = c("ERVW-1",
+                      "ERVV-1",
+                      "ERVFRD-1",
+                      "SDC1",
+                      "CGA",
+                      "SLC40A1",
+                      "PAGE4",
+                      "SLC52A1",
+                      "KRT23",
+                      "SLC13A4",
+                      "PEG10",
+                      "ID2",
+                      "DUSP9",
+                      "PHLDA2",
+                      "SLC26A2",
+                      "PSG6",
+                      "PSG3",
+                      "PSG2",
+                      "PSG5",
+                      "HIST1H1C",
+                      "TFPI2",
+                      "LEP",
+                      "MT2A",
+                      "CGB",
+                      "KISS1"),
+         assay     = "RNA",
+         cols      = c("lightgrey", "red"),
+         col.min   = 0,
+         col.max   = 1,
+         dot.min   = 0,
+         dot.scale = 15) 
+```
+
+```{r, Supplemental figure 6D SCTp state 1 subset}
+        SCTp1 <- subset (Trophoblasts, idents = "SCTp 1")
+Idents (SCTp1) <- SCTp1$Model
+av.exp         <- AverageExpression (SCTp1)$RNA
+cor.exp        <- as.data.frame     (cor (av.exp))
+cor.exp$x      <- rownames          (cor.exp)
+cor.df         <- tidyr::gather     (data = cor.exp, y, correlation, c("MPI", "PD.TOrg", "hTSC.TOrg"))
+cor.df
+
+ggplot               (cor.df, aes (x, y, fill = correlation)) +
+geom_tile            () +
+scale_fill_gradientn (limits = c(0,1), colours = colorRampPalette (rev (brewer.pal (n = 7, name = "RdYlBu"))) (100))
+```
+
+## Model-specific alternative villous differentiation branch analyses
+
+### Maternal-Placental Interface (in vivo) CTBs, SCTp, and TSCs
+
+```{r, Supplemental figure 6E, Alternate Maternal-Placental Interface (in vivo) villous differentiation branch subset}
+MPI_ALT_Villous <- subset (ALT_Villous, subset = Model == "MPI")
+MPI_ALT_Villous
+```
+
+```{r, Supplemental figure 6E, Alternate Maternal-Placental Interface (in vivo) villous differentiation branch re-clustering}
+MPI_ALT_Villous <- FindNeighbors (MPI_ALT_Villous)
+MPI_ALT_Villous <- FindClusters  (MPI_ALT_Villous, resolution = 0.250)
+MPI_ALT_Villous <- RunUMAP       (MPI_ALT_Villous, reduction  = "pca", dims = 1:30)
+MPI_ALT_Villous
+```
+
+```{r, Supplemental figure 6E, Alternate Maternal-Placental Interface (in vivo) villous differentiation branch cluster labelling}
+         new.cluster.ids <- c("CTB 1",  # Cytotrophoblast state 1
+                              "CTB 2",  # Cytotrophoblast state 2
+                              "CTB 4",  # Cytotrophoblast state 4
+                              "CTB 3",  # Cytotrophoblast state 3
+                              "SCTp")   # Syncytiotrophoblast precursor state
+
+names (new.cluster.ids)  <- levels       (MPI_ALT_Villous)
+MPI_ALT_Villous$celltype <- Idents       (MPI_ALT_Villous)
+MPI_ALT_Villous          <- RenameIdents (MPI_ALT_Villous, new.cluster.ids)
+```
+
+```{r, Supplemental figure 6E, Alternate Maternal-Placental Interface (in vivo) villous differentiation branch re-clustered UMAP}
+UMAPPlot (MPI_ALT_Villous, label = TRUE, pt.size = 3) + NoLegend ()
+```
+
+### Patient-derived trophoblast organoid (in vitro) CTBs, SCTp, and TSCs
+
+```{r, Supplemental figure 6E, Alternate patient-derived trophoblast organoid (in vitro) villous differentiation branch subset}
+PD.TOrg_ALT_Villous <- subset (ALT_Villous, subset = Model == "PD.TOrg")
+PD.TOrg_ALT_Villous
+```
+
+```{r, Supplemental figure 6E, Alternate patient-derived trophoblast organoid (in vitro) villous differentiation branch re-clustering}
+PD.TOrg_ALT_Villous <- FindNeighbors (PD.TOrg_ALT_Villous)
+PD.TOrg_ALT_Villous <- FindClusters  (PD.TOrg_ALT_Villous, resolution = 0.100)
+PD.TOrg_ALT_Villous <- RunUMAP       (PD.TOrg_ALT_Villous, reduction  = "pca", dims = 1:30)
+PD.TOrg_ALT_Villous
+```
+
+```{r, Supplemental figure 6E, Alternate patient-derived trophoblast organoid (in vitro) villous differentiation branch cluster labelling}
+             new.cluster.ids <- c("CTB 2",  # Cytotrophoblast state 2
+                                  "CTB 1",  # Cytotrophoblast state 1
+                                  "CTB 4",  # Cytotrophoblast state 4
+                                  "SCTp",   # Syncytiotrophoblast precursor state
+                                  "TSC")    # hTSC-enriched state
+
+names (new.cluster.ids)      <- levels       (PD.TOrg_ALT_Villous)
+PD.TOrg_ALT_Villous$celltype <- Idents       (PD.TOrg_ALT_Villous)
+PD.TOrg_ALT_Villous          <- RenameIdents (PD.TOrg_ALT_Villous, new.cluster.ids)
+```
+
+```{r, Supplemental figure 6E, Alternate patient-derived trophoblast organoid (in vitro) villous differentiation branch re-clustered UMAP}
+UMAPPlot (PD.TOrg_ALT_Villous, label = TRUE, pt.size = 3) + NoLegend ()
+```
+
+## Chimeric Maternal-Placental Interface (in vivo) + hTSC-derived trophoblast organoid (in vitro) villous differentiation branch analysis
+
+```{r, Figure 6F, Chimeric (MPI trophoblasts in vivo + in vitro hTSC-TOrg trophoblasts) villous differentiation branch subset and re-clustering}
+Chimeric_Villous <- subset        (ALT_Villous, subset = Model == c("MPI", "hTSC.TOrg"))
+Chimeric_Villous <- FindNeighbors (Chimeric_Villous)
+Chimeric_Villous <- FindClusters  (Chimeric_Villous, resolution = 0.450)
+Chimeric_Villous <- RunUMAP       (Chimeric_Villous, reduction  = "pca", dims = 1:30)
+```
+
+```{r, Figure 6F, Chimeric (MPI trophoblasts in vivo + in vitro hTSC-TOrg trophoblasts) villous differentiation branch cluster labelling}
+# Label all trophoblast clusters by cell type
+          new.cluster.ids <- c("TSC",     # hTSC-enriched state
+                               "CTB 2",   # Cytotrophoblast state 2
+                               "CTB 1",   # Cytotrophoblast state 1
+                               "CTB 4",   # Cytotrophoblast state 4
+                               "SCTp 1",  # Syncytiotrophoblast precursor state 1
+                               "CTB 3",   # Cytotrophoblast state 3
+                               "SCTp 2")  # Syncytiotrophoblast precursor state 2
+
+names (new.cluster.ids)   <- levels       (Chimeric_Villous)
+Chimeric_Villous$celltype <- Idents       (Chimeric_Villous)
+Chimeric_Villous          <- RenameIdents (Chimeric_Villous, new.cluster.ids)
+```
+
+```{r, Figure 6F, Chimeric (MPI trophoblasts in vivo + in vitro hTSC-TOrg trophoblasts) villous differentiation branch re-clustered UMAP}
+UMAPPlot (Chimeric_Villous, label = TRUE, pt.size = 3) + NoLegend ()
+```
