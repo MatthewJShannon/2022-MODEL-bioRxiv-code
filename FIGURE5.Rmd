@@ -197,6 +197,17 @@ MPI_Extravillous <- RunUMAP       (MPI_Extravillous, reduction  = "pca", dims = 
 MPI_Extravillous
 ```
 
+```{r, Figure 5E, Maternal-Placental Interface (in vivo) extravillous differentiation branch cluster labelling}
+          new.cluster.ids <- c("EVT",          # Extravillous trophoblast state
+                               "cCTB 2",       # Column cytotrophoblast   state 2
+                               "ITGA2+ cCTB",  # ITGA2+ column cytotrophoblast   state 1
+                               "cCTB 1")       # Column cytotrophoblast   state 1
+
+names (new.cluster.ids)   <- levels       (MPI_Extravillous)
+MPI_Extravillous$celltype <- Idents       (MPI_Extravillous)
+MPI_Extravillous          <- RenameIdents (MPI_Extravillous, new.cluster.ids)
+```
+
 ```{r, Figure 5E, Maternal-Placental Interface (in vivo) extravillous differentiation branch UMAP}
 UMAPPlot (MPI_Extravillous, label = TRUE, pt.size = 3) + NoLegend ()
 ```
@@ -211,6 +222,17 @@ PD.TOrg_Extravillous <- RunUMAP       (PD.TOrg_Extravillous, reduction  = "pca",
 PD.TOrg_Extravillous
 ```
 
+```{r, Figure 5E, Patient-derived trophoblast organoid (in vitro) extravillous differentiation branch cluster labelling}
+              new.cluster.ids <- c("cCTB 3",  # Column cytotrophoblast   state 3
+                                   "cCTB 1",  # Column cytotrophoblast   state 1
+                                   "EVT",     # Extravillous trophoblast state
+                                   "TSC")     # hTSC-enriched state
+
+names (new.cluster.ids)       <- levels       (PD.TOrg_Extravillous)
+PD.TOrg_Extravillous$celltype <- Idents       (PD.TOrg_Extravillous)
+PD.TOrg_Extravillous          <- RenameIdents (PD.TOrg_Extravillous, new.cluster.ids)
+```
+
 ```{r, Figure 5E, Patient-derived trophoblast organoid (in vitro) extravillous differentiation branch UMAP}
 UMAPPlot (PD.TOrg_Extravillous, label = TRUE, pt.size = 3) + NoLegend ()
 ```
@@ -223,6 +245,16 @@ hTSC.TOrg_Extravillous <- FindNeighbors (hTSC.TOrg_Extravillous)
 hTSC.TOrg_Extravillous <- FindClusters  (hTSC.TOrg_Extravillous, resolution = 0.100)
 hTSC.TOrg_Extravillous <- RunUMAP       (hTSC.TOrg_Extravillous, reduction  = "pca", dims = 1:30)
 hTSC.TOrg_Extravillous
+```
+
+```{r, Figure 5E, hTSC-derived trophoblast organoid (in vitro) extravillous differentiation branch cluster labelling}
+                new.cluster.ids <- c("TSC",     # hTSC-enriched state
+                                     "EVT",     # Extravillous trophoblast state
+                                     "cCTB 3")  # Column cytotrophoblast   state 3
+
+names (new.cluster.ids)         <- levels       (hTSC.TOrg_Extravillous)
+hTSC.TOrg_Extravillous$celltype <- Idents       (hTSC.TOrg_Extravillous)
+hTSC.TOrg_Extravillous          <- RenameIdents (hTSC.TOrg_Extravillous, new.cluster.ids)
 ```
 
 ```{r, Figure 5E, hTSC-derived trophoblast organoid (in vitro) extravillous differentiation branch UMAP}
