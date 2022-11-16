@@ -63,7 +63,6 @@ library                  (monocle2)
 library                  (monocle3)
 library                  (patchwork)
 library                  (magrittr)
-library                  (ggpubr)
 ```
 
 # Load the integrated and model-specific trophoblast Seurat objects
