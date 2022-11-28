@@ -101,15 +101,15 @@ FeaturePlot (hTSC.TOrg, features = c("ITGA2"), label = FALSE, pt.size = 3, min.c
 
 ```{r, Figure 5B}
 # Maternal-Placental Interface (in vivo) ITGA2+ trophoblast subset
-MPI_ITGA2 <- subset (invivo,  subset = ITGA2 > 0.00)
+MPI_ITGA2 <- subset (MPI,  subset = ITGA2 > 0.00)
 MPI_ITGA2 # note the total number of cells
 
 # Patient-derived trophoblast organoid (in vitro) ITGA2+ trophoblast subset
-PD.TOrg_ITGA2 <- subset (exvivo,  subset = ITGA2 > 0.00)
+PD.TOrg_ITGA2 <- subset (PD.TOrg,  subset = ITGA2 > 0.00)
 PD.TOrg_ITGA2 # note the total number of cells
 
 # hTSC-derived trophoblast organoid (in vitro) ITGA2+ trophoblast subset
-hTSC.TOrg_ITGA2 <- subset (invitro, subset = ITGA2 > 0.00)
+hTSC.TOrg_ITGA2 <- subset (hTSC.TOrg, subset = ITGA2 > 0.00)
 hTSC.TOrg_ITGA2 # note the total number of cells
 ```
 
